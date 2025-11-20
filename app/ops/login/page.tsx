@@ -1,123 +1,166 @@
 "use client";
 
-import { useRef, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
-// Custom shader material for advanced effects
-const vertexShader = `
-  uniform float time;
-  uniform float intensity;
-  varying vec2 vUv;
-  varying vec3 vPosition;
-  
-  void main() {
-    vUv = uv;
-    vPosition = position;
-    
-    vec3 pos = position;
-    pos.y += sin(pos.x * 10.0 + time) * 0.1 * intensity;
-    pos.x += cos(pos.y * 8.0 + time * 1.5) * 0.05 * intensity;
-    
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-  }
-`;
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { Loader2, Lock, Mail } from "lucide-react";
+import { MeshGradient } from "@paper-design/shaders-react";
 
-const fragmentShader = `
-  uniform float time;
-  uniform float intensity;
-  uniform vec3 color1;
-  uniform vec3 color2;
-  varying vec2 vUv;
-  varying vec3 vPosition;
-  
-  void main() {
-    vec2 uv = vUv;
-    
-    // Create animated noise pattern
-    float noise = sin(uv.x * 20.0 + time) * cos(uv.y * 15.0 + time * 0.8);
-    noise += sin(uv.x * 35.0 - time * 2.0) * cos(uv.y * 25.0 + time * 1.2) * 0.5;
-    
-    // Mix colors based on noise and position
-    vec3 color = mix(color1, color2, noise * 0.5 + 0.5);
-    color = mix(color, vec3(1.0), pow(abs(noise), 2.0) * intensity);
-    
-    // Add glow effect
-    float glow = 1.0 - length(uv - 0.5) * 2.0;
-    glow = pow(glow, 2.0);
-    
-    gl_FragColor = vec4(color * glow, glow * 0.8);
-  }
-`;
+export default function LoginPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-export function ShaderPlane({
-  position,
-  color1 = "#ff5722",
-  color2 = "#ffffff",
-}: {
-  position: [number, number, number];
-  color1?: string;
-  color2?: string;
-}) {
-  const mesh = useRef<THREE.Mesh>(null);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  const uniforms = useMemo(
-    () => ({
-      time: { value: 0 },
-      intensity: { value: 1.0 },
-      color1: { value: new THREE.Color(color1) },
-      color2: { value: new THREE.Color(color2) },
-    }),
-    [color1, color2]
-  );
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-  useFrame((state) => {
-    if (mesh.current) {
-      uniforms.time.value = state.clock.elapsedTime;
-      uniforms.intensity.value =
-        1.0 + Math.sin(state.clock.elapsedTime * 2) * 0.3;
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+
+      router.push("/ops/dashboard");
+      router.refresh();
+    } catch {
+      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
+    } finally {
+      setLoading(false);
     }
-  });
+  };
 
   return (
-    <mesh ref={mesh} position={position}>
-      <planeGeometry args={[2, 2, 32, 32]} />
-      <shaderMaterial
-        uniforms={uniforms}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        transparent
-        side={THREE.DoubleSide}
+    <div className="w-full min-h-screen bg-black relative overflow-hidden">
+      {/* MeshGradient Background */}
+      <MeshGradient
+        className="w-full h-full absolute inset-0"
+        colors={["#000000", "#1a1a1a", "#333333", "#ffffff"]}
+        speed={1.0}
       />
-    </mesh>
-  );
-}
 
-export function EnergyRing({
-  radius = 1,
-  position = [0, 0, 0],
-}: {
-  radius?: number;
-  position?: [number, number, number];
-}) {
-  const mesh = useRef<THREE.Mesh>(null);
+      {/* Login Form */}
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
+        <Card className="w-full max-w-md border-white/10 bg-black/40 backdrop-blur-xl">
+          <CardHeader className="space-y-4 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/10">
+              <Lock className="h-6 w-6 text-white" />
+            </div>
+            <div className="space-y-2">
+              <CardTitle className="text-2xl font-bold text-white">
+                Admin Paneli
+              </CardTitle>
+              <CardDescription className="text-base text-white/60">
+                Yönetim paneline erişmek için giriş yapın
+              </CardDescription>
+            </div>
+          </CardHeader>
 
-  useFrame((state) => {
-    if (mesh.current) {
-      mesh.current.rotation.z = state.clock.elapsedTime;
-      mesh.current.material.opacity =
-        0.5 + Math.sin(state.clock.elapsedTime * 3) * 0.3;
-    }
-  });
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              {/* Email Field */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="email"
+                  className="text-sm font-medium text-white/80"
+                >
+                  E-posta Adresi
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="ornek@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
+                    required
+                    className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                  />
+                </div>
+              </div>
 
-  return (
-    <mesh ref={mesh} position={position}>
-      <ringGeometry args={[radius * 0.8, radius, 32]} />
-      <meshBasicMaterial
-        color="#ff5722"
-        transparent
-        opacity={0.6}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
+              {/* Password Field */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-medium text-white/80"
+                >
+                  Şifre
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    required
+                    className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                  />
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20">
+                  {error}
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                className="w-full h-10 text-base font-medium bg-white text-black hover:bg-white/90"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Giriş yapılıyor...
+                  </>
+                ) : (
+                  "Giriş Yap"
+                )}
+              </Button>
+
+              {/* Footer Link */}
+              <div className="text-center text-sm text-white/60">
+                Hesabınız yok mu?{" "}
+                <Link
+                  href="/ops/register"
+                  className="font-medium text-white hover:text-white/80 transition-colors"
+                >
+                  Kayıt olun
+                </Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

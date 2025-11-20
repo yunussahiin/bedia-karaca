@@ -54,6 +54,30 @@ const microNotes = [
   "Dili sade, bilimsel ve kültüre duyarlı tutarım.",
 ];
 
+const pillarMetrics = [
+  { label: "Aktif danışan", value: "32", note: "Online + yüz yüze" },
+  { label: "Atölye katılımcısı", value: "780+", note: "Ebeveynlik & DEHB" },
+  { label: "Podcast dinlenme", value: "120K", note: "Mindful Moments" },
+];
+
+const labPillars = [
+  {
+    title: "DEHB Laboratuvarı",
+    desc: "Odak süreleri, planlama şablonları, erteleme döngüsünü kıran mikro görevler.",
+    tags: ["Zaman kutulama", "Pomodoro 2.0", "Görsel ipuçları"],
+  },
+  {
+    title: "Ebeveynlik Atölyesi",
+    desc: "Çatışma anı protokolleri, nazik sınır koyma, duygu eşliği rol oynamaları.",
+    tags: ["Somut cümleler", "Nefes kartları", "Check-in"],
+  },
+  {
+    title: "Regülasyon Studio",
+    desc: "Nefes, beden, yazı üçlüsüyle ritmi yavaşlatan 15 dakikalık pratikler.",
+    tags: ["Nefes paketleri", "Ses kayıtları", "Self-compassion"],
+  },
+];
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -170,6 +194,92 @@ export default function AboutPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-border/60 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 text-white">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid gap-6 sm:grid-cols-3">
+            {pillarMetrics.map((metric) => (
+              <div
+                key={metric.label}
+                className="rounded-3xl border border-white/30 bg-white/10 p-6 text-center shadow-xl backdrop-blur"
+              >
+                <p className="text-sm uppercase tracking-[0.25em] text-emerald-50/90">
+                  {metric.label}
+                </p>
+                <p className="mt-3 text-4xl font-semibold">{metric.value}</p>
+                <p className="mt-1 text-sm text-emerald-50/90">{metric.note}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-border/60 bg-background">
+        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-300">
+                Klinik laboratuvar
+              </p>
+              <h2 className="text-3xl font-semibold text-slate-900 dark:text-white sm:text-4xl">
+                Her odak için ayrı bir “studio”
+              </h2>
+              <p className="mt-3 max-w-3xl text-base text-muted-foreground">
+                İçerikleri, seans ödevlerini ve dijital destek araçlarını üç ayrı lab altında topluyorum.
+                Böylece danışanlar neye ihtiyaç duyduğunu hızlıca buluyor.
+              </p>
+            </div>
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
+              Laboratuvar rehberi
+              <IconArrowUpRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+            {labPillars.map((pillar) => (
+              <div
+                key={pillar.title}
+                className="flex h-full flex-col rounded-3xl border border-border/60 bg-white/80 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-2xl dark:bg-slate-900/70"
+              >
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
+                  {pillar.title}
+                </h3>
+                <p className="mt-3 flex-1 text-sm text-muted-foreground leading-relaxed">
+                  {pillar.desc}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {pillar.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-900/60"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-border/60 bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white">
+        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+          <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">
+            Manifesto
+          </p>
+          <blockquote className="mt-6 text-2xl leading-relaxed sm:text-3xl">
+            “Terapideki hedefim, danışanın kendi ritmini duymasını sağlamak. Bilimsel
+            protokoller evet, ama her zaman sıcak, anlaşılır ve uygulanabilir adımlarla.”
+          </blockquote>
+          <div className="mt-8 flex flex-wrap gap-3 text-xs uppercase tracking-[0.3em] text-emerald-200">
+            <span>Bilim</span>
+            <span>Şefkat</span>
+            <span>Ritim</span>
+            <span>Gerçek hayat</span>
           </div>
         </div>
       </section>

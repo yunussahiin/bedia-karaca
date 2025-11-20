@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Loader2, Lock, Mail, User } from "lucide-react";
+import { MeshGradient } from "@paper-design/shaders-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -92,20 +93,26 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-background">
-      {/* Background Shader */}
-      <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900" />
+    <div className="w-full min-h-screen bg-black relative overflow-hidden">
+      {/* MeshGradient Background */}
+      <MeshGradient
+        className="w-full h-full absolute inset-0"
+        colors={["#000000", "#1a1a1a", "#333333", "#ffffff"]}
+        speed={1.0}
+      />
 
-      {/* Main Content */}
+      {/* Register Form */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
-        <Card className="w-full max-w-md border-border/50 backdrop-blur-sm">
+        <Card className="w-full max-w-md border-white/10 bg-black/40 backdrop-blur-xl">
           <CardHeader className="space-y-4 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <User className="h-6 w-6 text-primary" />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/10">
+              <User className="h-6 w-6 text-white" />
             </div>
             <div className="space-y-2">
-              <CardTitle className="text-2xl font-bold">Admin Kaydı</CardTitle>
-              <CardDescription className="text-base">
+              <CardTitle className="text-2xl font-bold text-white">
+                Admin Kaydı
+              </CardTitle>
+              <CardDescription className="text-base text-white/60">
                 Yeni admin hesabı oluşturun
               </CardDescription>
             </div>
@@ -115,11 +122,14 @@ export default function RegisterPage() {
             <form onSubmit={handleRegister} className="space-y-4">
               {/* Full Name Field */}
               <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-sm font-medium">
+                <Label
+                  htmlFor="fullName"
+                  className="text-sm font-medium text-white/80"
+                >
                   Ad Soyad
                 </Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     id="fullName"
                     type="text"
@@ -128,18 +138,21 @@ export default function RegisterPage() {
                     onChange={(e) => setFullName(e.target.value)}
                     disabled={loading}
                     required
-                    className="pl-10"
+                    className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
                   />
                 </div>
               </div>
 
               {/* Email Field */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
+                <Label
+                  htmlFor="email"
+                  className="text-sm font-medium text-white/80"
+                >
                   E-posta Adresi
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     id="email"
                     type="email"
@@ -148,18 +161,21 @@ export default function RegisterPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
                     required
-                    className="pl-10"
+                    className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
                   />
                 </div>
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-medium text-white/80"
+                >
                   Şifre
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     id="password"
                     type="password"
@@ -168,7 +184,7 @@ export default function RegisterPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading}
                     required
-                    className="pl-10"
+                    className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
                   />
                 </div>
               </div>
@@ -177,12 +193,12 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="confirmPassword"
-                  className="text-sm font-medium"
+                  className="text-sm font-medium text-white/80"
                 >
                   Şifre Tekrar
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -191,14 +207,14 @@ export default function RegisterPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     disabled={loading}
                     required
-                    className="pl-10"
+                    className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/40"
                   />
                 </div>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive border border-destructive/20">
+                <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20">
                   {error}
                 </div>
               )}
@@ -206,7 +222,7 @@ export default function RegisterPage() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full h-10 text-base font-medium"
+                className="w-full h-10 text-base font-medium bg-white text-black hover:bg-white/90"
                 disabled={loading}
               >
                 {loading ? (
@@ -220,11 +236,11 @@ export default function RegisterPage() {
               </Button>
 
               {/* Footer Link */}
-              <div className="text-center text-sm text-muted-foreground">
+              <div className="text-center text-sm text-white/60">
                 Zaten hesabınız var mı?{" "}
                 <Link
                   href="/ops/login"
-                  className="font-medium text-primary hover:underline transition-colors"
+                  className="font-medium text-white hover:text-white/80 transition-colors"
                 >
                   Giriş yapın
                 </Link>

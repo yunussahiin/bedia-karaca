@@ -3,9 +3,32 @@ import { SiteFooter } from "@/components/public/footer";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { publications } from "./data";
-import { IconArrowUpRight, IconFilter, IconSparkles } from "@tabler/icons-react";
+import {
+  IconArrowUpRight,
+  IconBrandApplePodcast,
+  IconBrandSpotify,
+  IconFilter,
+  IconSparkles,
+} from "@tabler/icons-react";
 
 const filters = ["Tümü", "Kitap", "Makale", "Podcast"];
+
+const podcastPlatforms = [
+  {
+    name: "Spotify",
+    description: "Kendime Rağmen podcastinin tüm bölümlerini listeler; playlist'e ekleyebilir, offline dinleyebilirsiniz.",
+    url: "https://open.spotify.com/show/1J3oTT9lj55lbwneHnyw3E",
+    icon: IconBrandSpotify,
+    accent: "from-emerald-500/20 to-emerald-400/10",
+  },
+  {
+    name: "Apple Podcasts",
+    description: "Apple ekosisteminde takip edin, yeni bölüm bildirimlerini alın, dinleme hızını ayarlayın.",
+    url: "https://podcasts.apple.com/ar/podcast/kendime-ra%C4%9Fmen/id1751373705",
+    icon: IconBrandApplePodcast,
+    accent: "from-purple-500/20 to-pink-400/10",
+  },
+];
 
 export default function PublicationsPage() {
   return (
@@ -41,6 +64,72 @@ export default function PublicationsPage() {
                 {filter}
               </button>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-border/60 bg-background">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="rounded-[32px] border border-border/60 bg-white/80 p-8 shadow-xl backdrop-blur dark:bg-slate-900/70">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-4">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-300">
+                  Podcast Studio
+                </p>
+                <h2 className="text-3xl font-semibold text-slate-900 dark:text-white sm:text-4xl">
+                  Kendime Rağmen: Spotify & Apple Podcast entegrasyonu
+                </h2>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  Her bölümde DEHB, kendine şefkat, ilişkiler ve regülasyon temaları. Spotify
+                  içinde özel oynatma listeleri; Apple Podcasts'te hız ayarı, otomatik bildirimler
+                  ve paylaşım kartları.
+                </p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {podcastPlatforms.map((platform) => (
+                    <a
+                      key={platform.name}
+                      href={platform.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`flex h-full flex-col rounded-2xl border border-border/60 bg-gradient-to-br ${platform.accent} p-4 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-800/80`}
+                    >
+                      <platform.icon className="h-6 w-6 text-slate-900 dark:text-white" />
+                      <h3 className="mt-3 text-lg font-semibold text-slate-900 dark:text-white">
+                        {platform.name}
+                      </h3>
+                      <p className="mt-2 text-sm text-muted-foreground dark:text-slate-200">
+                        {platform.description}
+                      </p>
+                      <span className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-200">
+                        Dinlemeye başla
+                        <IconArrowUpRight className="h-4 w-4" />
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="overflow-hidden rounded-3xl border border-border/70 shadow-2xl">
+                  <iframe
+                    src="https://open.spotify.com/embed/show/1J3oTT9lj55lbwneHnyw3E?utm_source=generator&theme=0"
+                    width="100%"
+                    height="232"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"
+                    className="border-0"
+                  />
+                </div>
+                <div className="overflow-hidden rounded-3xl border border-border/70 shadow-2xl">
+                  <iframe
+                    allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+                    height="200"
+                    style={{ width: "100%", borderRadius: "24px" }}
+                    sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+                    src="https://embed.podcasts.apple.com/ar/podcast/kendime-ra%C4%9Fmen/id1751373705"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
