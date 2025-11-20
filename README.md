@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bedia Karaca - Klinik Psikolog Web Sitesi
 
-## Getting Started
+Modern, performanslı ve yönetilebilir bir blog ve portfolyo sitesi. Erişkin DEHB uzmanı Klinik Psikolog Bedia Karaca için geliştirilmiştir.
 
-First, run the development server:
+## 🛠 Teknoloji Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Dil:** TypeScript
+- **Stil:** Tailwind CSS v4
+- **UI:** Shadcn/UI
+- **Backend:** Supabase (PostgreSQL, Auth, Storage)
+- **E-posta:** Resend
+- **Form:** React Hook Form + Zod
+- **Markdown:** Remark
+
+## 🚀 Kurulum
+
+### 1. Bağımlılıkları Yükleyin
+
+```bash
+npm install
+```
+
+### 2. Supabase Veritabanını Kurun
+
+`/supabase` klasöründeki SQL dosyalarını sırasıyla Supabase SQL Editor'de çalıştırın:
+
+1. `01-schema.sql` - Tablo yapısı ve RLS politikaları
+2. `02-seed-data.sql` - Başlangıç verileri
+3. `03-storage-setup.sql` - Storage buckets
+
+Detaylı talimatlar için: [supabase/README.md](./supabase/README.md)
+
+### 3. Ortam Değişkenlerini Ayarlayın
+
+`.env.local` dosyası zaten mevcut ve yapılandırılmış:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://nztcblkytmaxartdvhoj.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+### 4. Geliştirme Sunucusunu Başlatın
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) adresini tarayıcınızda açın.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Proje Yapısı
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+/app
+  /ops              # Admin paneli (korumalı)
+  /blog             # Blog sayfaları
+  /api              # API endpoints
+  /dashboard        # Shadcn dashboard template
+/components
+  /ui               # Shadcn UI bileşenleri
+  /shared           # Ortak bileşenler
+/lib
+  /supabase         # Supabase client yapılandırması
+  /types            # TypeScript tipleri
+  markdown.ts       # Markdown işleme
+/supabase           # SQL dosyaları
+/docs               # Proje dokümantasyonu
+```
 
-## Learn More
+## 🔐 Admin Paneli
 
-To learn more about Next.js, take a look at the following resources:
+Admin paneline erişim için:
+1. Supabase'de kullanıcı oluşturun
+2. `profiles` tablosuna `is_admin: true` ile ekleyin
+3. `/ops/login` adresinden giriş yapın
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📚 Dokümantasyon
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Detaylı dokümantasyon için `/docs` klasörüne bakın:
+- `llm-project-brief.md` - Proje özeti
+- `api-integrations.md` - API entegrasyonları
+- `design-system.md` - Tasarım sistemi
+- `development-roadmap.md` - Geliştirme planı
 
-## Deploy on Vercel
+## 🎨 Özellikler
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- ✅ Blog sistemi (Markdown desteği)
+- ✅ Kategori yönetimi
+- ✅ Admin paneli (/ops)
+- ✅ İletişim formu
+- ✅ Yayınlar sayfası
+- ✅ SEO optimize
+- ✅ Responsive tasarım
+- ✅ Dark mode hazır
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📝 Lisans
+
+Bu proje Bedia Karaca için özel olarak geliştirilmiştir.

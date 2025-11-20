@@ -1,0 +1,77 @@
+# Bedia Karaca Web Sitesi - Ortam Değişkenleri
+# Bu dosyayı .env.local olarak kopyalayın ve kendi değerlerinizle doldurun
+
+# ============================================
+# SUPABASE YAPLANDIRMASI
+# ============================================
+# Supabase Dashboard > Settings > API bölümünden alınır
+
+# Supabase Proje URL'si
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+
+# Supabase Anon/Public Key (İstemci tarafında kullanılır)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+
+# Supabase Service Role Key (Sadece sunucu tarafında kullanılır - GİZLİ TUTUN!)
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# ============================================
+# RESEND YAPLANDIRMASI (E-posta Servisi)
+# ============================================
+# https://resend.com/api-keys adresinden API key oluşturun
+
+# Resend API Key
+RESEND_API_KEY=re_your_resend_api_key
+
+# Gönderen e-posta adresi (Resend'de doğrulanmış domain olmalı)
+RESEND_FROM_EMAIL=noreply@bediakaraca.com
+
+# Alıcı e-posta adresi (İletişim formu mesajları buraya gelecek)
+RESEND_TO_EMAIL=karacabedia@gmail.com
+
+# ============================================
+# NEXT.JS YAPLANDIRMASI
+# ============================================
+
+# Site URL'si (Production için)
+NEXT_PUBLIC_SITE_URL=https://bediakaraca.com
+
+# Geliştirme ortamında
+# NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# ============================================
+# ANALYTİCS (Opsiyonel)
+# ============================================
+
+# Google Analytics Measurement ID
+# NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# Vercel Analytics (Otomatik aktif olur, ek yapılandırma gerekmez)
+
+# ============================================
+# HATA İZLEME (Opsiyonel)
+# ============================================
+
+# Sentry DSN (Hata izleme için)
+# NEXT_PUBLIC_SENTRY_DSN=https://your-sentry-dsn
+
+# ============================================
+# GELİŞTİRME NOTLARI
+# ============================================
+
+# 1. Bu dosyayı .env.local olarak kopyalayın:
+#    cp .env.local.example .env.local
+
+# 2. Tüm değerleri kendi bilgilerinizle doldurun
+
+# 3. .env.local dosyası .gitignore'da olmalı (asla commit etmeyin!)
+
+# 4. Production ortamında (Vercel):
+#    - Vercel Dashboard > Settings > Environment Variables
+#    - Tüm değişkenleri buraya ekleyin
+#    - NEXT_PUBLIC_ ile başlayanlar istemci tarafında da erişilebilir olur
+
+# 5. Güvenlik:
+#    - SUPABASE_SERVICE_ROLE_KEY asla istemci tarafında kullanmayın
+#    - RESEND_API_KEY sadece API route'larında kullanın
+#    - Hassas bilgileri GitHub'a yüklemeyin
