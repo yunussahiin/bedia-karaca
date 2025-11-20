@@ -53,6 +53,7 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadCategories = async () => {
@@ -203,7 +204,9 @@ export default function CategoriesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Kategoriler</h1>
-          <p className="text-gray-600">Blog kategorilerini yönetin</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Blog kategorilerini yönetin
+          </p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
@@ -251,7 +254,7 @@ export default function CategoriesPage() {
               {formData.name && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Slug</label>
-                  <div className="px-3 py-2 bg-gray-100 rounded-md text-sm text-gray-600">
+                  <div className="px-3 py-2 bg-muted rounded-md text-sm text-muted-foreground">
                     {generateSlug(formData.name)}
                   </div>
                 </div>
@@ -286,11 +289,11 @@ export default function CategoriesPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <p className="text-gray-500">Kategoriler yükleniyor...</p>
+              <p className="text-muted-foreground">Kategoriler yükleniyor...</p>
             </div>
           ) : categories.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8">
-              <p className="text-gray-500 mb-4">Henüz kategori yok</p>
+              <p className="text-muted-foreground mb-4">Henüz kategori yok</p>
               <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" onClick={() => handleClose()}>
@@ -319,7 +322,7 @@ export default function CategoriesPage() {
                       <TableCell>
                         <Badge variant="outline">{category.slug}</Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600 max-w-xs truncate">
+                      <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
                         {category.description || "-"}
                       </TableCell>
                       <TableCell className="text-right space-x-2">

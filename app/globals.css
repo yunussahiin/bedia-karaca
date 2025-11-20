@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -41,6 +42,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --font-geist-mono: var(----font-geist-mono);
+  --font-geist-sans: var(----font-geist-sans);
+  --radius: var(----radius);
 }
 
 :root {
@@ -76,6 +81,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --destructive-foreground: oklch(1 0 0);
+  --font-geist-sans: "Geist Sans", sans-serif;
+  --font-geist-mono: "Geist Mono", monospace;
 }
 
 .dark {
@@ -110,6 +118,7 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --destructive-foreground: oklch(1 0 0);
 }
 
 @layer base {
@@ -119,4 +128,177 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Tiptap Editor Styles */
+.tiptap {
+  outline: none;
+}
+
+.dark .tiptap {
+  color: oklch(0.985 0 0);
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.dark .tiptap p.is-editor-empty:first-child::before {
+  color: #6b7280;
+}
+
+.tiptap ul,
+.tiptap ol {
+  padding: 0 1rem;
+  margin: 1rem 0;
+}
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
+  line-height: 1.1;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap h1 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.tiptap h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.tiptap h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.tiptap code {
+  background-color: rgba(97, 97, 97, 0.1);
+  border-radius: 0.25rem;
+  color: #616161;
+  font-size: 0.9rem;
+  padding: 0.2em 0.4em;
+}
+
+.dark .tiptap code {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
+}
+
+.tiptap pre {
+  background: #0d0d0d;
+  border-radius: 0.5rem;
+  color: #fff;
+  font-family: "JetBrainsMono", monospace;
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+}
+
+.dark .tiptap pre {
+  background: #1f2937;
+}
+
+.tiptap pre code {
+  background: none;
+  color: inherit;
+  font-size: 0.8rem;
+  padding: 0;
+}
+
+.tiptap blockquote {
+  border-left: 3px solid rgba(13, 13, 13, 0.1);
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+}
+
+.dark .tiptap blockquote {
+  border-left: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.tiptap hr {
+  border: none;
+  border-top: 1px solid rgba(13, 13, 13, 0.1);
+  margin: 2rem 0;
+}
+
+.dark .tiptap hr {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.tiptap table td,
+.tiptap table th {
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 0.5rem;
+  position: relative;
+  vertical-align: top;
+}
+
+.dark .tiptap table td,
+.dark .tiptap table th {
+  border: 1px solid #374151;
+}
+
+.tiptap table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+  text-align: left;
+}
+
+.dark .tiptap table th {
+  background-color: #1f2937;
+}
+
+.tiptap table .selectedCell:after {
+  background: rgba(200, 200, 255, 0.4);
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.tiptap img {
+  display: block;
+  height: auto;
+  margin: 1.5rem auto;
+  max-width: 100%;
+}
+
+.tiptap a {
+  color: #3b82f6;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.dark .tiptap a {
+  color: #60a5fa;
+}
+
+.tiptap a:hover {
+  color: #2563eb;
+}
+
+.dark .tiptap a:hover {
+  color: #93c5fd;
 }

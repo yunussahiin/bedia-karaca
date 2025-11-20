@@ -30,6 +30,7 @@ import { createClient } from "@/lib/supabase/client";
 const settingsSchema = z.object({
   site_title: z.string().min(1, "Site başlığı gerekli"),
   site_description: z.string().min(1, "Site açıklaması gerekli"),
+  about_text: z.string().optional(),
   contact_email: z.string().email("Geçerli bir e-posta adresi girin"),
   contact_phone: z.string().min(1, "Telefon numarası gerekli"),
   contact_address: z.string().min(1, "Adres gerekli"),
@@ -70,6 +71,7 @@ export default function SettingsPage() {
     defaultValues: {
       site_title: "",
       site_description: "",
+      about_text: "",
       contact_email: "",
       contact_phone: "",
       contact_address: "",
@@ -104,6 +106,7 @@ export default function SettingsPage() {
         form.reset({
           site_title: settings.site_title || "",
           site_description: settings.site_description || "",
+          about_text: settings.about_text || "",
           contact_email: settings.contact_email || "",
           contact_phone: settings.contact_phone || "",
           contact_address: settings.contact_address || "",
@@ -185,7 +188,7 @@ export default function SettingsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Yükleniyor...</p>
+        <p className="text-muted-foreground">Yükleniyor...</p>
       </div>
     );
   }
@@ -254,6 +257,27 @@ export default function SettingsPage() {
                         </FormControl>
                         <FormDescription>
                           Arama motorlarında görünen açıklama (meta description)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="about_text"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Hakkımda Metni</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Kendiniz hakkında bilgi yazınız..."
+                            className="min-h-32"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Hakkımda sayfasında gösterilecek metin
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -434,7 +458,7 @@ export default function SettingsPage() {
             </TabsContent>
 
             {/* Save Button */}
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-4 border-t">
               <Button type="submit" disabled={isSaving} size="lg">
                 {isSaving ? "Kaydediliyor..." : "Ayarları Kaydet"}
               </Button>
