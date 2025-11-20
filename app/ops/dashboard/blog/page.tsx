@@ -29,7 +29,7 @@ interface Post {
   status: "draft" | "published";
   published_at: string | null;
   category_id: string | null;
-  categories?: { name: string } | null;
+  categories?: { name: string } | { name: string }[] | null;
   created_at: string;
 }
 
@@ -196,9 +196,11 @@ export default function BlogPage() {
                         {post.title}
                       </TableCell>
                       <TableCell>
-                        {post.categories?.name ? (
+                        {post.categories ? (
                           <Badge variant="outline">
-                            {post.categories.name}
+                            {Array.isArray(post.categories)
+                              ? post.categories[0]?.name
+                              : post.categories.name}
                           </Badge>
                         ) : (
                           <span className="text-gray-400">-</span>
