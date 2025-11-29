@@ -2,9 +2,9 @@
  * ArticleRenderer - TipTap HTML içeriğini blog sayfasında render et
  *
  * Kullanım:
- * <ArticleRenderer content={post.content} />
+ * <ArticleRenderer content={post.contentHtml} />
  *
- * Not: content HTML string olmalı (editor.getHTML() çıktısı)
+ * Not: content, @tiptap/html generateHTML() çıktısı olmalı
  */
 
 interface ArticleRendererProps {
@@ -14,13 +14,15 @@ interface ArticleRendererProps {
 export function ArticleRenderer({ content }: ArticleRendererProps) {
   if (!content) {
     return (
-      <div className="text-sm text-muted-foreground">İçerik bulunamadı.</div>
+      <div className="text-sm text-muted-foreground italic py-8 text-center">
+        İçerik bulunamadı.
+      </div>
     );
   }
 
   return (
-    <div
-      className="blog-prose max-w-none"
+    <article
+      className="blog-prose"
       dangerouslySetInnerHTML={{ __html: content }}
     />
   );
