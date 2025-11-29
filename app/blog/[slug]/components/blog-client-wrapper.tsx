@@ -28,13 +28,14 @@ export function BlogClientWrapper({
   const [readingProgress, setReadingProgress] = useState(0);
 
   // İçindekiler - blog content'inden otomatik oluştur (boş heading'leri filtrele)
-  const tableOfContents: TableOfContentsItem[] = article.content
-    .map((section, index) => ({
-      id: `section-${index}`,
+  // content artık TOC için heading array'i içeriyor (id, heading, body)
+  const tableOfContents: TableOfContentsItem[] = (article.content || [])
+    .filter((section) => section.heading && section.heading.trim() !== "")
+    .map((section) => ({
+      id: (section as { id?: string }).id || `heading-${section.heading}`,
       title: section.heading,
       level: "heading" as const,
-    }))
-    .filter((item) => item.title && item.title.trim() !== "");
+    }));
 
   useEffect(() => {
     const handleScroll = () => {
