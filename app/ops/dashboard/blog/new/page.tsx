@@ -21,11 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { BlogEditor } from "@/components/blog-editor";
 import { SEOBlogGuide } from "@/components/seo-blog-guide";
 import { ContentAnalyzer } from "@/components/content-analyzer";
+import { FileUpload } from "@/components/file-upload";
+import { ContentNotesEditor } from "@/components/content-notes-editor";
 
 interface Category {
   id: string;
@@ -40,11 +43,15 @@ export default function NewBlogPage() {
   const [slug, setSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
+  const [coverImageUrl, setCoverImageUrl] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [status, setStatus] = useState<"draft" | "published">("draft");
+  const [featured, setFeatured] = useState(false);
+  const [contentNotes, setContentNotes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Load categories on mount
   useEffect(() => {
@@ -90,9 +97,75 @@ export default function NewBlogPage() {
     setSlug(generateSlug(value));
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Dosya boyutu 5MB'dan küçük olmalıdır");
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setError("Lütfen bir görsel dosyası seçin");
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      setError("");
+
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `blog-covers/${fileName}`;
+
+      // Try to upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from("blog-images")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        setError(`Görsel yüklenirken hata: ${uploadError.message}`);
+        return;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from("blog-images")
+        .getPublicUrl(filePath);
+
+      if (urlData?.publicUrl) {
+        setCoverImageUrl(urlData.publicUrl);
+      } else {
+        setError("Görsel URL'si alınamadı");
+      }
+    } catch (err) {
+      console.error("Upload exception:", err);
+      setError("Görsel yüklenirken bir hata oluştu");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!title.trim()) {
       setError("Başlık gereklidir");
+      return;
+    }
+
+    if (!excerpt.trim()) {
+      setError("Özet gereklidir");
+      return;
+    }
+
+    if (!coverImageUrl) {
+      setError("Kapak fotoğrafı gereklidir");
       return;
     }
 
@@ -117,8 +190,13 @@ export default function NewBlogPage() {
           slug: slug || generateSlug(title),
           excerpt: excerpt.trim(),
           content,
+          cover_image_url: coverImageUrl || null,
           category_id: categoryId,
           status,
+          featured: featured && status === "published",
+          author_name: "Bedia Kalemzer Karaca",
+          content_notes:
+            contentNotes.length > 0 ? JSON.stringify(contentNotes) : null,
           published_at:
             status === "published" ? new Date().toISOString() : null,
         })
@@ -198,6 +276,25 @@ export default function NewBlogPage() {
                 </Select>
               </div>
 
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="featured"
+                  checked={featured}
+                  onCheckedChange={(checked) => setFeatured(checked as boolean)}
+                  disabled={status !== "published"}
+                />
+                <Label htmlFor="featured" className="cursor-pointer">
+                  Öne Çıkar
+                </Label>
+              </div>
+
+              {featured && (
+                <ContentNotesEditor
+                  notes={contentNotes}
+                  onChange={setContentNotes}
+                />
+              )}
+
               <div className="md:col-span-2 flex items-end gap-2">
                 <Button
                   onClick={handleSave}
@@ -259,6 +356,23 @@ export default function NewBlogPage() {
                   rows={3}
                   className="mt-1"
                 />
+              </div>
+
+              <div>
+                <Label>Kapak Fotoğrafı</Label>
+                <div className="mt-2">
+                  <FileUpload
+                    onFileSelect={async (file) => {
+                      const event = {
+                        target: { files: [file] },
+                      } as unknown as React.ChangeEvent<HTMLInputElement>;
+                      await handleImageUpload(event);
+                    }}
+                    isLoading={uploadingImage}
+                    previewUrl={coverImageUrl}
+                    onRemove={() => setCoverImageUrl("")}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

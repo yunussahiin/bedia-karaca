@@ -13,6 +13,11 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import CharacterCount from "@tiptap/extension-character-count";
 import TextAlign from "@tiptap/extension-text-align";
+import Superscript from "@tiptap/extension-superscript";
+import Subscript from "@tiptap/extension-subscript";
+import Highlight from "@tiptap/extension-highlight";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,6 +41,10 @@ import {
   AlignCenter,
   AlignRight,
   Minus,
+  Superscript as SuperscriptIcon,
+  Subscript as SubscriptIcon,
+  Highlighter,
+  CheckSquare2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ImageUploader } from "@/components/image-uploader";
@@ -48,11 +57,50 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface BlogEditorProps {
   content: string;
   onChange: (content: string) => void;
 }
+
+// Helper component for toolbar buttons with tooltips
+const ToolbarButton = ({
+  onClick,
+  isActive,
+  disabled,
+  tooltip,
+  icon: Icon,
+}: {
+  onClick: () => void;
+  isActive?: boolean;
+  disabled?: boolean;
+  tooltip: string;
+  icon: React.ComponentType<{ className?: string }>;
+}) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={onClick}
+        disabled={disabled}
+        className={isActive ? "bg-accent" : ""}
+      >
+        <Icon className="h-4 w-4" />
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent>
+      <p>{tooltip}</p>
+    </TooltipContent>
+  </Tooltip>
+);
 
 export function BlogEditor({ content, onChange }: BlogEditorProps) {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
@@ -89,6 +137,15 @@ export function BlogEditor({ content, onChange }: BlogEditorProps) {
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
+      Superscript,
+      Subscript,
+      Highlight.configure({
+        multicolor: true,
+      }),
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
       Placeholder.configure({
         placeholder: "Yazının içeriğini buraya yazın...",
       }),
@@ -96,7 +153,9 @@ export function BlogEditor({ content, onChange }: BlogEditorProps) {
     content,
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      // TipTap JSON formatında kaydet (HTML değil!)
+      const json = editor.getJSON();
+      onChange(JSON.stringify(json));
     },
     editorProps: {
       attributes: {
@@ -108,8 +167,19 @@ export function BlogEditor({ content, onChange }: BlogEditorProps) {
 
   // Update editor content when prop changes
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
+    if (editor && content) {
+      try {
+        const currentJson = JSON.stringify(editor.getJSON());
+        if (content !== currentJson) {
+          const parsed = JSON.parse(content);
+          editor.commands.setContent(parsed);
+        }
+      } catch {
+        // Eğer parse edilemezse HTML olarak set et
+        if (content !== editor.getHTML()) {
+          editor.commands.setContent(content);
+        }
+      }
     }
   }, [content, editor]);
 
@@ -118,308 +188,251 @@ export function BlogEditor({ content, onChange }: BlogEditorProps) {
   }
 
   return (
-    <div className="space-y-2">
-      {/* Toolbar */}
-      <div className="flex flex-wrap gap-1 p-2 border rounded-md bg-gray-50 dark:bg-gray-400 dark:border-gray-700">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive("bold") ? "bg-accent" : ""}
-          title="Kalın (Ctrl+B)"
-        >
-          <Bold className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive("italic") ? "bg-accent" : ""}
-          title="İtalik (Ctrl+I)"
-        >
-          <Italic className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={editor.isActive("underline") ? "bg-accent" : ""}
-          title="Altı Çizili (Ctrl+U)"
-        >
-          <UnderlineIcon className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={editor.isActive("strike") ? "bg-accent" : ""}
-          title="Üstü Çizili"
-        >
-          <Strikethrough className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleCode().run()}
-          className={editor.isActive("code") ? "bg-accent" : ""}
-          title="Kod"
-        >
-          <Code className="h-4 w-4" />
-        </Button>
+    <TooltipProvider>
+      <div className="space-y-2">
+        {/* Toolbar */}
+        <div className="flex flex-wrap gap-1 p-2 border rounded-md bg-gray-50 dark:bg-slate-900 dark:border-slate-700">
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            isActive={editor.isActive("bold")}
+            tooltip="Kalın (Ctrl+B)"
+            icon={Bold}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            isActive={editor.isActive("italic")}
+            tooltip="İtalik (Ctrl+I)"
+            icon={Italic}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            isActive={editor.isActive("underline")}
+            tooltip="Altı Çizili (Ctrl+U)"
+            icon={UnderlineIcon}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            isActive={editor.isActive("strike")}
+            tooltip="Üstü Çizili"
+            icon={Strikethrough}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleCode().run()}
+            isActive={editor.isActive("code")}
+            tooltip="Kod"
+            icon={Code}
+          />
 
-        <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 1 }).run()
-          }
-          className={
-            editor.isActive("heading", { level: 1 }) ? "bg-accent" : ""
-          }
-          title="Başlık 1"
-        >
-          <Heading1 className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }
-          className={
-            editor.isActive("heading", { level: 2 }) ? "bg-accent" : ""
-          }
-          title="Başlık 2"
-        >
-          <Heading2 className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 3 }).run()
-          }
-          className={
-            editor.isActive("heading", { level: 3 }) ? "bg-accent" : ""
-          }
-          title="Başlık 3"
-        >
-          <Heading3 className="h-4 w-4" />
-        </Button>
+          <ToolbarButton
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 1 }).run()
+            }
+            isActive={editor.isActive("heading", { level: 1 })}
+            tooltip="Başlık 1"
+            icon={Heading1}
+          />
+          <ToolbarButton
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 2 }).run()
+            }
+            isActive={editor.isActive("heading", { level: 2 })}
+            tooltip="Başlık 2"
+            icon={Heading2}
+          />
+          <ToolbarButton
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 3 }).run()
+            }
+            isActive={editor.isActive("heading", { level: 3 })}
+            tooltip="Başlık 3"
+            icon={Heading3}
+          />
 
-        <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive("bulletList") ? "bg-accent" : ""}
-          title="Madde İşaretli Liste"
-        >
-          <List className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={editor.isActive("orderedList") ? "bg-accent" : ""}
-          title="Numaralı Liste"
-        >
-          <ListOrdered className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={editor.isActive("blockquote") ? "bg-accent" : ""}
-          title="Alıntı"
-        >
-          <Quote className="h-4 w-4" />
-        </Button>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            isActive={editor.isActive("bulletList")}
+            tooltip="Madde İşaretli Liste"
+            icon={List}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            isActive={editor.isActive("orderedList")}
+            tooltip="Numaralı Liste"
+            icon={ListOrdered}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            isActive={editor.isActive("blockquote")}
+            tooltip="Alıntı"
+            icon={Quote}
+          />
 
-        <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setLinkDialogOpen(true)}
-          className={editor.isActive("link") ? "bg-accent" : ""}
-          title="Link Ekle"
-        >
-          <Link2 className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setImageUploaderOpen(true)}
-          title="Görsel Ekle"
-        >
-          <ImageIcon className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() =>
-            editor
-              .chain()
-              .focus()
-              .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-              .run()
-          }
-          title="Tablo Ekle"
-        >
-          <TableIcon className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          title="Yatay Çizgi"
-        >
-          <Minus className="h-4 w-4" />
-        </Button>
+          <ToolbarButton
+            onClick={() => setLinkDialogOpen(true)}
+            isActive={editor.isActive("link")}
+            tooltip="Link Ekle"
+            icon={Link2}
+          />
+          <ToolbarButton
+            onClick={() => setImageUploaderOpen(true)}
+            tooltip="Görsel Ekle"
+            icon={ImageIcon}
+          />
+          <ToolbarButton
+            onClick={() =>
+              editor
+                .chain()
+                .focus()
+                .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                .run()
+            }
+            tooltip="Tablo Ekle"
+            icon={TableIcon}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            tooltip="Yatay Çizgi"
+            icon={Minus}
+          />
 
-        <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          className={editor.isActive({ textAlign: "left" }) ? "bg-accent" : ""}
-          title="Sola Hizala"
-        >
-          <AlignLeft className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          className={
-            editor.isActive({ textAlign: "center" }) ? "bg-accent" : ""
-          }
-          title="Ortala"
-        >
-          <AlignCenter className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          className={editor.isActive({ textAlign: "right" }) ? "bg-accent" : ""}
-          title="Sağa Hizala"
-        >
-          <AlignRight className="h-4 w-4" />
-        </Button>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setTextAlign("left").run()}
+            isActive={editor.isActive({ textAlign: "left" })}
+            tooltip="Sola Hizala"
+            icon={AlignLeft}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            isActive={editor.isActive({ textAlign: "center" })}
+            tooltip="Ortala"
+            icon={AlignCenter}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            isActive={editor.isActive({ textAlign: "right" })}
+            tooltip="Sağa Hizala"
+            icon={AlignRight}
+          />
 
-        <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
-          title="Geri Al (Ctrl+Z)"
-        >
-          <Undo className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
-          title="Yinele (Ctrl+Y)"
-        >
-          <Redo className="h-4 w-4" />
-        </Button>
-      </div>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={!editor.can().undo()}
+            tooltip="Geri Al (Ctrl+Z)"
+            icon={Undo}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={!editor.can().redo()}
+            tooltip="Yinele (Ctrl+Y)"
+            icon={Redo}
+          />
 
-      {/* Editor */}
-      <EditorContent editor={editor} />
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
-      {/* Character Count */}
-      <div className="flex justify-between text-xs text-gray-500 px-2">
-        <span>
-          {editor.storage.characterCount.characters()} karakter,{" "}
-          {editor.storage.characterCount.words()} kelime
-        </span>
-      </div>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleSuperscript().run()}
+            isActive={editor.isActive("superscript")}
+            tooltip="Üst İndis"
+            icon={SuperscriptIcon}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleSubscript().run()}
+            isActive={editor.isActive("subscript")}
+            tooltip="Alt İndis"
+            icon={SubscriptIcon}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHighlight().run()}
+            isActive={editor.isActive("highlight")}
+            tooltip="Vurgula"
+            icon={Highlighter}
+          />
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleTaskList().run()}
+            isActive={editor.isActive("taskList")}
+            tooltip="Yapılacak Listesi"
+            icon={CheckSquare2}
+          />
+        </div>
 
-      {/* Image Uploader */}
-      <ImageUploader
-        open={imageUploaderOpen}
-        onOpenChange={setImageUploaderOpen}
-        onImageInsert={(url: string) => {
-          editor.chain().focus().setImage({ src: url }).run();
-        }}
-      />
+        {/* Editor */}
+        <div className="prose prose-neutral dark:prose-invert max-w-none [&_sup]:text-sm [&_sup]:align-super [&_sub]:text-sm [&_sub]:align-sub [&_mark]:bg-yellow-200/50 [&_mark]:dark:bg-yellow-900/30 [&_mark]:px-1 [&_mark]:rounded [&_.ProseMirror_ul_li]:list-disc [&_.ProseMirror_ol_li]:list-decimal [&_input[type='checkbox']]:w-5 [&_input[type='checkbox']]:h-5 [&_input[type='checkbox']]:accent-blue-600 [&_input[type='checkbox']]:dark:accent-blue-400">
+          <EditorContent editor={editor} />
+        </div>
 
-      {/* Link Dialog */}
-      <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Link Ekle</DialogTitle>
-            <DialogDescription>
-              Eklemek istediğiniz linkin URL&apos;sini girin
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label htmlFor="link-url">URL</Label>
-              <Input
-                id="link-url"
-                placeholder="https://example.com"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                className="mt-1"
-              />
+        {/* Character Count */}
+        <div className="flex justify-between text-xs text-gray-500 px-2">
+          <span>
+            {editor.storage.characterCount.characters()} karakter,{" "}
+            {editor.storage.characterCount.words()} kelime
+          </span>
+        </div>
+
+        {/* Image Uploader */}
+        <ImageUploader
+          open={imageUploaderOpen}
+          onOpenChange={setImageUploaderOpen}
+          onImageInsert={(url: string) => {
+            editor.chain().focus().setImage({ src: url }).run();
+          }}
+        />
+
+        {/* Link Dialog */}
+        <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Link Ekle</DialogTitle>
+              <DialogDescription>
+                Eklemek istediğiniz linkin URL&apos;sini girin
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label htmlFor="link-url">URL</Label>
+                <Input
+                  id="link-url"
+                  placeholder="https://example.com"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setLinkDialogOpen(false);
-                setLinkUrl("");
-              }}
-            >
-              İptal
-            </Button>
-            <Button
-              onClick={() => {
-                if (linkUrl) {
-                  editor.chain().focus().setLink({ href: linkUrl }).run();
-                }
-                setLinkDialogOpen(false);
-                setLinkUrl("");
-              }}
-            >
-              Ekle
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setLinkDialogOpen(false);
+                  setLinkUrl("");
+                }}
+              >
+                İptal
+              </Button>
+              <Button
+                onClick={() => {
+                  if (linkUrl) {
+                    editor.chain().focus().setLink({ href: linkUrl }).run();
+                  }
+                  setLinkDialogOpen(false);
+                  setLinkUrl("");
+                }}
+              >
+                Ekle
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </TooltipProvider>
   );
 }

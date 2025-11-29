@@ -302,3 +302,163 @@
 .dark .tiptap a:hover {
   color: #93c5fd;
 }
+
+/* Blog Prose - Tailwind Layer */
+@layer components {
+  .blog-prose {
+    @apply text-base leading-relaxed text-foreground;
+  }
+
+  .blog-prose h1 {
+    @apply text-4xl font-bold mb-6 mt-8 first:mt-0;
+  }
+
+  .blog-prose h2 {
+    @apply text-3xl font-bold mb-4 mt-6;
+  }
+
+  .blog-prose h3 {
+    @apply text-2xl font-semibold mb-3 mt-5;
+  }
+
+  .blog-prose p {
+    @apply mb-4 text-muted-foreground;
+  }
+
+  .blog-prose p:empty {
+    @apply hidden;
+  }
+
+  /* Lists with colored bullets */
+  .blog-prose ul {
+    @apply list-none pl-0 my-4 space-y-2;
+  }
+
+  .blog-prose ul > li {
+    @apply pl-6 relative text-muted-foreground;
+  }
+
+  .blog-prose ul > li::before {
+    @apply absolute left-0 text-primary font-bold content-['•'];
+  }
+
+  /* Numbered lists */
+  .blog-prose ol {
+    @apply list-none pl-0 my-4 space-y-2;
+    counter-reset: item;
+  }
+
+  .blog-prose ol > li {
+    @apply pl-8 relative text-muted-foreground;
+    counter-increment: item;
+  }
+
+  .blog-prose ol > li::before {
+    @apply absolute left-0 text-primary font-semibold;
+    content: counter(item) ".";
+  }
+
+  .blog-prose li p {
+    @apply mb-0 inline;
+  }
+
+  /* Blockquote */
+  .blog-prose blockquote {
+    @apply border-l-4 border-primary pl-4 italic text-muted-foreground my-4 py-2;
+  }
+
+  /* Code */
+  .blog-prose code {
+    @apply bg-muted px-1 py-0.5 rounded text-sm font-mono;
+  }
+
+  .blog-prose pre {
+    @apply bg-muted p-4 rounded-lg border border-border overflow-x-auto my-4;
+  }
+
+  .blog-prose pre code {
+    @apply bg-transparent p-0;
+  }
+
+  /* Links */
+  .blog-prose a {
+    @apply text-primary underline underline-offset-2 transition-opacity hover:opacity-80;
+  }
+
+  /* Images */
+  .blog-prose img {
+    @apply rounded-lg my-4 max-w-full h-auto;
+  }
+
+  /* Tables */
+  .blog-prose table {
+    @apply w-full border-collapse my-4 border border-border;
+  }
+
+  .blog-prose th,
+  .blog-prose td {
+    @apply border border-border px-4 py-2 text-left;
+  }
+
+  .blog-prose th {
+    @apply bg-muted font-semibold;
+  }
+
+  /* HR */
+  .blog-prose hr {
+    @apply my-6 border-t border-border;
+  }
+
+  /* Inline elements */
+  .blog-prose strong {
+    @apply font-semibold text-foreground;
+  }
+
+  .blog-prose em {
+    @apply italic;
+  }
+
+  .blog-prose u {
+    @apply underline underline-offset-2;
+  }
+
+  .blog-prose del {
+    @apply line-through text-muted-foreground;
+  }
+
+  /* Sup/Sub */
+  .blog-prose sup {
+    @apply text-xs align-super inline-block leading-none;
+  }
+
+  .blog-prose sub {
+    @apply text-xs align-sub inline-block leading-none;
+  }
+
+  /* Mark */
+  .blog-prose mark {
+    @apply bg-yellow-200/40 dark:bg-yellow-900/25 px-1 rounded;
+  }
+
+  /* Checkbox */
+  .blog-prose input[type="checkbox"] {
+    @apply w-4.5 h-4.5 accent-primary mr-2 cursor-pointer;
+  }
+
+  .blog-prose input[type="checkbox"]:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Text alignment */
+  .blog-prose p[style*="text-align: center"] {
+    @apply text-center;
+  }
+
+  .blog-prose p[style*="text-align: right"] {
+    @apply text-right;
+  }
+
+  .blog-prose p[style*="text-align: left"] {
+    @apply text-left;
+  }
+}

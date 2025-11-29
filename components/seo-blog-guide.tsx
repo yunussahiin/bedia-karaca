@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -17,14 +17,15 @@ import {
 } from "@/components/ui/collapsible";
 
 export function SEOBlogGuide() {
-  const [isOpen, setIsOpen] = useState(() => {
-    // Initial state'i localStorage'dan oku
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("seo-guide-open");
-      return saved !== null ? saved === "true" : true;
+  const [isOpen, setIsOpen] = useState(true);
+
+  useEffect(() => {
+    // Client-side'da localStorage'dan oku
+    const saved = localStorage.getItem("seo-guide-open");
+    if (saved !== null) {
+      setIsOpen(saved === "true");
     }
-    return true;
-  });
+  }, []);
 
   // Durum değiştiğinde localStorage'a kaydet
   const handleOpenChange = (open: boolean) => {

@@ -35,7 +35,8 @@ const contactChannels = [
     action: "Mesaj gönder",
     href: "https://wa.me/905063628760",
     icon: IconMessageCircle2,
-    accent: "from-emerald-100 to-white dark:from-emerald-900/40 dark:to-slate-900",
+    accent:
+      "from-emerald-100 to-white dark:from-emerald-900/40 dark:to-slate-900",
   },
   {
     title: "Telefon",
@@ -121,58 +122,83 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <section className="border-b border-border/60 bg-gradient-to-br from-emerald-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <section className="border-b border-border/60 bg-gradient-to-br from-emerald-50 via-white to-slate-50 dark:from-background dark:via-card dark:to-background">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100 backdrop-blur dark:bg-slate-900/80 dark:text-emerald-200 dark:ring-emerald-900/60">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100 backdrop-blur dark:bg-card/80 dark:text-emerald-200 dark:ring-border">
                 <IconSparkles className="h-4 w-4" />
                 Birlikte çalışalım
               </div>
-              <h1 className="text-4xl font-semibold leading-tight text-slate-900 dark:text-white">
+              <h1 className="text-4xl font-semibold leading-tight text-slate-900 dark:text-foreground">
                 Kısa bir ön görüşme planlayalım
               </h1>
               <p className="max-w-2xl text-base text-muted-foreground">
-                Terapi odağınızı, uygun seans saatlerini ve beklentilerinizi netleştirelim.
-                Formu gönderin, 24 saat içinde dönüş yapayım.
+                Terapi odağınızı, uygun seans saatlerini ve beklentilerinizi
+                netleştirelim. Formu gönderin, 24 saat içinde dönüş yapayım.
               </p>
               <div className="grid gap-3 sm:grid-cols-3">
-                <InfoPill icon={<IconPhone className="h-4 w-4" />} label="Telefon" value="+90 506 362 87 60" />
-                <InfoPill icon={<IconMail className="h-4 w-4" />} label="E-posta" value="karacabedia@gmail.com" />
-                <InfoPill icon={<IconMapPin className="h-4 w-4" />} label="Konum" value="Nişantaşı / İstanbul" />
+                <InfoPill
+                  icon={<IconPhone className="h-4 w-4" />}
+                  label="Telefon"
+                  value="+90 506 362 87 60"
+                />
+                <InfoPill
+                  icon={<IconMail className="h-4 w-4" />}
+                  label="E-posta"
+                  value="karacabedia@gmail.com"
+                />
+                <InfoPill
+                  icon={<IconMapPin className="h-4 w-4" />}
+                  label="Konum"
+                  value="Nişantaşı / İstanbul"
+                />
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
                 {contactStats.map((stat) => (
                   <div
                     key={stat.label}
-                    className="flex items-center gap-3 rounded-2xl border border-emerald-200/70 bg-white/80 px-4 py-3 text-sm shadow-sm backdrop-blur dark:border-emerald-900/60 dark:bg-slate-900/70"
+                    className="flex items-center gap-3 rounded-2xl border border-emerald-200/70 bg-white/80 px-4 py-3 text-sm shadow-sm backdrop-blur dark:border-border dark:bg-card/70"
                   >
                     <stat.icon className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
                     <div>
                       <p className="text-xs uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-300">
                         {stat.label}
                       </p>
-                      <p className="text-base font-semibold text-slate-900 dark:text-white">
+                      <p className="text-base font-semibold text-slate-900 dark:text-foreground">
                         {stat.value}
                       </p>
-                      <p className="text-xs text-muted-foreground">{stat.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {stat.description}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <Card className="border-border/70 bg-white/80 shadow-lg backdrop-blur dark:bg-slate-900/70">
+            <Card className="border-border/70 bg-white/80 shadow-lg backdrop-blur dark:bg-card/70">
               <CardContent className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="name">Ad Soyad</Label>
-                      <Input id="name" name="name" placeholder="Adınız" required />
+                      <Input
+                        id="name"
+                        name="name"
+                        placeholder="Adınız"
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">E-posta</Label>
-                      <Input id="email" name="email" type="email" placeholder="ornek@email.com" required />
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="ornek@email.com"
+                        required
+                      />
                     </div>
                   </div>
 
@@ -183,7 +209,11 @@ export default function ContactPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="topic">Konu / Odağınız</Label>
-                      <Input id="topic" name="topic" placeholder="DEHB, ebeveynlik, kaygı..." />
+                      <Input
+                        id="topic"
+                        name="topic"
+                        placeholder="DEHB, ebeveynlik, kaygı..."
+                      />
                     </div>
                   </div>
 
@@ -208,7 +238,7 @@ export default function ContactPage() {
                   </Button>
 
                   {submitted && (
-                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100">
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-border dark:bg-card dark:text-emerald-100">
                       Mesajınız alındı. 24 saat içinde dönüş yapılacaktır.
                     </div>
                   )}
@@ -226,13 +256,13 @@ export default function ContactPage() {
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-300">
                 Hızlı iletişim
               </p>
-              <h2 className="text-3xl font-semibold text-slate-900 dark:text-white">
+              <h2 className="text-3xl font-semibold text-slate-900 dark:text-foreground">
                 Sizin için en rahat kanal hangisi?
               </h2>
             </div>
             <Link
               href="/randevu-al"
-              className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 px-4 py-2 text-sm font-semibold text-emerald-700 hover:-translate-y-0.5 hover:bg-emerald-50 dark:border-emerald-900/60 dark:text-emerald-200"
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 px-4 py-2 text-sm font-semibold text-emerald-700 hover:-translate-y-0.5 hover:bg-emerald-50 dark:border-border dark:text-emerald-200"
             >
               Randevu planla
               <IconArrowRight className="h-4 w-4" />
@@ -247,11 +277,11 @@ export default function ContactPage() {
                 rel={channel.href.startsWith("/") ? undefined : "noreferrer"}
                 className={`flex flex-col rounded-3xl border border-border/60 bg-gradient-to-br ${channel.accent} p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl`}
               >
-                <channel.icon className="h-6 w-6 text-slate-900 dark:text-white" />
-                <h3 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
+                <channel.icon className="h-6 w-6 text-slate-900 dark:text-foreground" />
+                <h3 className="mt-4 text-lg font-semibold text-slate-900 dark:text-foreground">
                   {channel.title}
                 </h3>
-                <p className="mt-2 flex-1 text-sm text-muted-foreground dark:text-slate-200">
+                <p className="mt-2 flex-1 text-sm text-muted-foreground dark:text-muted-foreground">
                   {channel.description}
                 </p>
                 <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-200">
@@ -283,22 +313,29 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <section className="border-b border-border/60 bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white">
+      <section className="border-b border-border/60 bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white dark:from-background dark:via-card dark:to-background">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="space-y-4">
               <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">
                 Süreç nasıl işler?
               </p>
-              <h2 className="text-3xl font-semibold">Şeffaf ve hızlı bir iletişim akışı</h2>
+              <h2 className="text-3xl font-semibold">
+                Şeffaf ve hızlı bir iletişim akışı
+              </h2>
               <div className="space-y-4">
                 {processSteps.map((step, index) => (
-                  <div key={step.title} className="rounded-2xl border border-white/20 bg-white/5 p-4 backdrop-blur">
+                  <div
+                    key={step.title}
+                    className="rounded-2xl border border-white/20 bg-white/5 p-4 backdrop-blur"
+                  >
                     <div className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
                       <IconClockHour4 className="h-4 w-4" />
                       Adım {index + 1}
                     </div>
-                    <p className="mt-1 text-lg font-semibold text-white">{step.title}</p>
+                    <p className="mt-1 text-lg font-semibold text-white">
+                      {step.title}
+                    </p>
                     <p className="text-sm text-white/80">{step.desc}</p>
                   </div>
                 ))}
@@ -309,7 +346,9 @@ export default function ContactPage() {
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-200">
                   Ofis Konumu
                 </p>
-                <h3 className="mt-2 text-2xl font-semibold">Nişantaşı / İstanbul</h3>
+                <h3 className="mt-2 text-2xl font-semibold">
+                  Nişantaşı / İstanbul
+                </h3>
                 <p className="text-sm text-white/80">
                   Hafta içi 10:00-20:00 · Hafta sonu 11:00-16:00 · Randevu ile
                 </p>
@@ -348,9 +387,9 @@ export default function ContactPage() {
               <AccordionItem
                 key={item.question}
                 value={`item-${idx}`}
-                className="rounded-2xl border border-border/60 bg-white/80 px-4 shadow-sm dark:bg-slate-900/70"
+                className="rounded-2xl border border-border/60 bg-white/80 px-4 shadow-sm dark:bg-card/70 dark:text-foreground"
               >
-                <AccordionTrigger className="text-left text-lg font-semibold text-slate-900 dark:text-white">
+                <AccordionTrigger className="text-left text-lg font-semibold text-slate-900 dark:text-foreground">
                   {item.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
@@ -376,7 +415,7 @@ function InfoPill({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/80 px-3 py-2 text-sm text-emerald-700 shadow-sm backdrop-blur dark:border-emerald-900/60 dark:bg-slate-900/70 dark:text-emerald-200">
+    <div className="flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/80 px-3 py-2 text-sm text-emerald-700 shadow-sm backdrop-blur dark:border-border dark:bg-card/70 dark:text-emerald-200">
       {icon}
       <div className="flex flex-col leading-tight">
         <span className="text-[11px] uppercase tracking-[0.18em] text-emerald-500 dark:text-emerald-300">
@@ -392,9 +431,13 @@ function InfoPill({
 
 function SupportCard({ title, desc }: { title: string; desc: string }) {
   return (
-    <div className="rounded-2xl border border-border/60 bg-white/80 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900/70">
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{desc}</p>
+    <div className="rounded-2xl border border-border/60 bg-white/80 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:bg-card/70">
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-foreground">
+        {title}
+      </h3>
+      <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+        {desc}
+      </p>
     </div>
   );
 }

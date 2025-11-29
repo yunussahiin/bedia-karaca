@@ -2,15 +2,15 @@ import { IconSparkles, IconClock } from "@tabler/icons-react";
 
 export function BlogHero({ totalPosts }: { totalPosts: number }) {
   return (
-    <section className="border-b border-border/60 bg-gradient-to-br from-emerald-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <section className="border-b border-border/60 bg-gradient-to-br from-emerald-50 via-white to-slate-50 dark:from-background dark:via-card dark:to-background">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-5">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100 backdrop-blur dark:bg-slate-900/80 dark:text-emerald-200 dark:ring-emerald-900/60">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100 backdrop-blur dark:bg-card/80 dark:text-emerald-200 dark:ring-border">
               <IconSparkles className="h-4 w-4" />
               Klinik blog
             </div>
-            <h1 className="text-4xl font-semibold leading-tight text-slate-900 dark:text-white sm:text-5xl">
+            <h1 className="text-4xl font-semibold leading-tight text-slate-900 dark:text-foreground sm:text-5xl">
               Günlük ritmi sakinleştiren{" "}
               <span className="text-emerald-600 dark:text-emerald-300">
                 rehber içerikler
@@ -31,7 +31,7 @@ export function BlogHero({ totalPosts }: { totalPosts: number }) {
               <Stat label="Yeni yazılar" value="Haftalık" />
             </div>
           </div>
-          <div className="rounded-3xl border border-white/60 bg-white/70 p-6 shadow-2xl ring-1 ring-emerald-100 backdrop-blur dark:border-slate-800/80 dark:bg-slate-900/70 dark:ring-slate-800">
+          <div className="rounded-3xl border border-white/60 bg-white/70 p-6 shadow-2xl ring-1 ring-emerald-100 backdrop-blur dark:border-border dark:bg-card/70 dark:ring-border">
             <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-200">
               İçerik temaları
             </p>
@@ -68,7 +68,7 @@ function Stat({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-emerald-200/70 bg-white/80 px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm backdrop-blur dark:border-emerald-900/70 dark:bg-slate-900/70 dark:text-emerald-200">
+    <div className="flex items-center gap-3 rounded-2xl border border-emerald-200/70 bg-white/80 px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm backdrop-blur dark:border-border dark:bg-card/70 dark:text-emerald-200">
       {icon}
       <div className="flex flex-col leading-tight">
         <span className="text-xs uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-300">

@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 
 const links = [
   { href: "/blog", label: "Blog" },
-  { href: "/hakkimda", label: "Hakkımda" },
-  { href: "/yayinlar", label: "Yayınlar" },
-  { href: "/iletisim", label: "İletişim" },
+  { href: "/about-us", label: "Hakkımda" },
+  { href: "/publications", label: "Yayınlar" },
+  { href: "/contact", label: "İletişim" },
 ];
 
 export function Navbar() {

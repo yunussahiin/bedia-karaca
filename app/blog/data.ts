@@ -1,4 +1,5 @@
 export type BlogPost = {
+  id?: string;
   title: string;
   slug: string;
   category: string;
@@ -6,16 +7,34 @@ export type BlogPost = {
   date: string;
   excerpt: string;
   coverGradient: string;
+  coverImageUrl?: string;
   content: {
     heading: string;
     body: string;
     bullets?: string[];
+    images?: string[];
   }[];
+  contentHtml?: string; // TipTap HTML content
+  status?: 'draft' | 'published';
+  authorId?: string;
+  authorName?: string;
+  contentNotes?: string[];
+  metrics?: {
+    views?: number;
+    shares?: number;
+    saves?: number;
+  };
+  tags?: string[];
+  quickFacts?: Array<{ title: string; description: string }>;
+  insights?: Array<{ label: string; value: string; description: string }>;
+  actionSteps?: string[];
+  resources?: Array<{ title: string; type: string; url: string }>;
+  relatedSlugs?: string[];
 };
 
 export const blogPosts: BlogPost[] = [
   {
-    title: "Erişkin DEHB: Günlük Hayatta Odak ve Akış",
+    title: "Erişkin DEHB: Günlük Hayatta Odak ve Akış1",
     slug: "eriskin-dehb-gunluk-hayatta-odak",
     category: "DEHB",
     readTime: "8 dk",

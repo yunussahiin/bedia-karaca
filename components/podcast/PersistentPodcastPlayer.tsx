@@ -698,14 +698,12 @@ export default function PersistentPodcastPlayer() {
 
   return (
     <>
-      <div
-        className={cn(
-          "fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm transition-all duration-300",
-          panelOpen
-            ? "opacity-100 pointer-events-auto"
-            : "pointer-events-none opacity-0"
-        )}
-      />
+      {panelOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-all duration-300 opacity-100 pointer-events-auto"
+          onClick={() => setPanelOpen(false)}
+        />
+      )}
       <div
         ref={containerRef}
         className={cn(
