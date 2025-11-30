@@ -1,7 +1,11 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ThemeSwitcherToggle } from "@/components/theme-toggle";
 import { NewsletterSection } from "./newsletter-section";
 import { LogoHorizontal } from "@/components/logo";
+import { getSocialLinks } from "@/lib/services/site-settings";
 import {
   IconBrandInstagram,
   IconBrandLinkedin,
@@ -16,42 +20,34 @@ interface SiteFooterProps {
   showNewsletter?: boolean;
 }
 
-// Sosyal medya linkleri - site_settings'ten alınacak
-const socialLinks = [
-  {
-    platform: "Instagram",
-    url: "https://instagram.com/bediakalemzerkaraca",
-    icon: IconBrandInstagram,
-  },
-  {
-    platform: "Facebook",
-    url: "https://facebook.com/bediakalemzerkaraca",
-    icon: IconBrandFacebook,
-  },
-  {
-    platform: "LinkedIn",
-    url: "https://linkedin.com/in/bediakalemzerkaraca",
-    icon: IconBrandLinkedin,
-  },
-  {
-    platform: "YouTube",
-    url: "https://youtube.com/@bediakalemzerkaraca",
-    icon: IconBrandYoutube,
-  },
-  {
-    platform: "TikTok",
-    url: "https://tiktok.com/@bediakalemzerkaraca",
-    icon: IconBrandTiktok,
-  },
-  { platform: "X", url: "https://twitter.com/bediakaraca", icon: IconBrandX },
-  {
-    platform: "Spotify",
-    url: "https://open.spotify.com/show/1J3oTT9lj55lbwneHnyw3E",
-    icon: IconBrandSpotify,
-  },
-];
+interface SocialLink {
+  platform: string;
+  url: string;
+  icon: string;
+}
+
+// Platform -> icon mapping
+const platformIconMap: Record<string, typeof IconBrandInstagram> = {
+  instagram: IconBrandInstagram,
+  facebook: IconBrandFacebook,
+  twitter: IconBrandX,
+  linkedin: IconBrandLinkedin,
+  youtube: IconBrandYoutube,
+  tiktok: IconBrandTiktok,
+  spotify: IconBrandSpotify,
+};
 
 export function SiteFooter({ showNewsletter = true }: SiteFooterProps) {
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+
+  useEffect(() => {
+    const fetchSocialLinks = async () => {
+      const links = await getSocialLinks();
+      setSocialLinks(links);
+    };
+    fetchSocialLinks();
+  }, []);
+
   return (
     <>
       {showNewsletter && <NewsletterSection />}
@@ -72,7 +68,8 @@ export function SiteFooter({ showNewsletter = true }: SiteFooterProps) {
               {/* Social Links */}
               <div className="flex flex-wrap gap-2 pt-2">
                 {socialLinks.map((social) => {
-                  const Icon = social.icon;
+                  const Icon = platformIconMap[social.icon];
+                  if (!Icon) return null;
                   return (
                     <a
                       key={social.platform}

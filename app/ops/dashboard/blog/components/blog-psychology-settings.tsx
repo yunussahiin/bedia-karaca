@@ -153,15 +153,13 @@ const DEFAULT_DIFFICULTY_LEVELS: DifficultyLevelItem[] = [
   },
 ];
 
-function TooltipLabel({
-  label,
-  tooltip,
-  icon: Icon,
-}: {
+interface TooltipLabelProps {
   label: string;
   tooltip: string;
   icon?: React.ElementType;
-}) {
+}
+
+function TooltipLabel({ label, tooltip, icon: Icon }: TooltipLabelProps) {
   return (
     <div className="flex items-center gap-1.5">
       {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ThemeSwitcherToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { LogoHorizontal } from "@/components/logo";
+import { getSocialLinks } from "@/lib/services/site-settings";
 import {
   Sheet,
   SheetContent,
@@ -56,42 +57,35 @@ interface SocialLink {
   icon: string;
 }
 
-const socialLinks: SocialLink[] = [
-  {
-    platform: "instagram",
-    url: "https://instagram.com/bediakalemzerkaraca",
-    icon: "instagram",
-  },
-  {
-    platform: "facebook",
-    url: "https://facebook.com/bediakalemzerkaraca",
-    icon: "facebook",
-  },
-  {
-    platform: "linkedin",
-    url: "https://linkedin.com/in/bediakalemzerkaraca",
-    icon: "linkedin",
-  },
-  {
-    platform: "youtube",
-    url: "https://youtube.com/bediakalemzerkaraca",
-    icon: "youtube",
-  },
-  {
-    platform: "tiktok",
-    url: "https://tiktok.com/bediakalemzerkaraca",
-    icon: "tiktok",
-  },
-  {
-    platform: "spotify",
-    url: "https://spotify.com/bediakalemzerkaraca",
-    icon: "spotify",
-  },
-];
+// Platform -> icon mapping
+const platformIconMap: Record<string, string> = {
+  instagram: "instagram",
+  facebook: "facebook",
+  twitter: "twitter",
+  linkedin: "linkedin",
+  youtube: "youtube",
+  tiktok: "tiktok",
+  spotify: "spotify",
+  apple_podcasts: "apple",
+};
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const pathname = usePathname();
+
+  // Site settings'ten sosyal medya linklerini çek
+  useEffect(() => {
+    const loadSocialLinks = async () => {
+      try {
+        const links = await getSocialLinks();
+        setSocialLinks(links);
+      } catch (error) {
+        console.error("Sosyal medya linkleri yüklenirken hata:", error);
+      }
+    };
+    loadSocialLinks();
+  }, []);
 
   // Sayfa değiştiğinde scroll'u üste al
   useEffect(() => {
