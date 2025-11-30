@@ -2,75 +2,127 @@
 
 Bu dosya, Bedia Karaca web sitesi projesinin geliştirme sürecini takip etmek için oluşturulmuştur.
 
-## 🟢 Faz 1: Altyapı ve Kurulum
-- [x] Next.js Latest Proje kurulumu (TypeScript, ESLint, Prettier) ✅
-- [x] Tailwind CSS konfigürasyonu ✅
-- [x] Shadcn/UI kurulumu ve `cn` utility ayarı ✅
-- [x] Temel Shadcn bileşenlerinin eklenmesi (Button, Input, Card, Sheet, Dropdown, vb.) ✅
-- [x] Dashboard template eklenmesi (`npx shadcn@latest add dashboard-01`) ✅
-- [x] Supabase proje oluşturma ve bağlantı ayarları (`.env.local`) ✅
-- [x] Supabase client konfigürasyonları (`client.ts`, `server.ts`, `middleware.ts`) ✅
-- [x] Klasör yapısının düzenlenmesi (`/app`, `/components`, `/lib`, `/types`) ✅
-- [x] Diğer bağımlılıklar (react-hook-form, zod, resend, remark, lucide-react) ✅
-- [x] Git reposunun başlatılması ve ilk commit ✅
+**Son Güncelleme:** 30 Kasım 2025 00:45
 
-## 🟡 Faz 2: Veritabanı ve Backend (Supabase)
-- [x] Veritabanı şemasının güncellenmesi (Ops paneli gereksinimlerine göre) ✅
-    - [x] `profiles` tablosu (Admin yetkisi `is_admin` eklendi) ✅
-    - [x] `posts` tablosu (İçerik DB'de tutulacak şekilde) ✅
-    - [x] `categories` tablosu ✅
-    - [x] `site_settings` tablosu (Site ayarları için yeni) ✅
-    - [x] `publications` ve `contact_submissions` tabloları ✅
-- [x] Supabase Auth yapılandırması (Middleware ile `/ops` koruması) ✅
-- [x] RLS (Row Level Security) politikalarının yazılması ✅
-- [x] TypeScript tiplerinin oluşturulması (`database.types.ts`) ✅
-- [x] SQL dosyalarının hazırlanması (`/supabase/*.sql`) ✅
-- [ ] **SQL dosyalarını Supabase'de çalıştırma** ⏳ (Sıradaki adım)
+---
 
-## 🟠 Faz 3: Yönetim Paneli (/ops) - **Öncelikli** (35% Tamamlandı)
-- [ ] `/ops/login` sayfası tasarımı ve Auth entegrasyonu
-- [x] Dashboard template kurulumu (`dashboard-01`) ✅
-- [x] `/ops` ana düzeni (Sidebar layout) - Dashboard template'i özelleştirme ✅
-    - [x] Collapsible menü yapısı eklendi (ChevronRight animasyonu) ✅
-    - [x] Mevcut sayfalar menüye entegre edildi (Blog, Publications, Settings, Account, Messages) ✅
-    - [x] Layout.tsx oluşturuldu - tüm iç sayfalar layout'u inherit ediyor ✅
-    - [x] Padding/spacing sorunları çözüldü (px-4 lg:px-6 pt-8) ✅
-    - [x] SiteHeader tüm sayfalarda görünüyor ✅
-- [ ] **Blog Yönetimi:**
-    - [x] Yazı listeleme (Data Table) - Temel yapı var ✅
-    - [x] Yazı ekleme sayfası (/blog/new) - Tiptap editörü ile ✅
-    - [x] Tiptap Gelişmiş Özellikler ✅
-        - [x] Link, Image, Table, Typography ✅
-        - [x] Text Align, Character Count ✅
-        - [x] Zengin toolbar (20+ buton) ✅
-    - [x] Yazı düzenleme sayfası (/blog/[id]) ✅
-    - [x] Supabase Storage ile görsel yükleme ✅
-    - [x] Kategori yönetimi (CRUD) ✅
-- [ ] **Site Ayarları:**
-    - [ ] Global ayarlar formu (Logo, SEO başlıkları, sosyal medya linkleri)
-    - [ ] Hakkımda ve İletişim bilgileri güncelleme alanları
-- [ ] **Yayınlar Yönetimi:**
-    - [x] Yayınlar listeleme sayfası var ✅
-    - [ ] Kitap/Makale ekleme ve düzenleme
-- [x] İletişim formu mesajlarını görüntüleme - Mesajlar sayfası var ✅
-- [x] Hesap sayfası var ✅
+## 🟢 Faz 1: Altyapı ve Kurulum ✅ (100%)
+- [x] Next.js Latest Proje kurulumu (TypeScript, ESLint, Prettier)
+- [x] Tailwind CSS konfigürasyonu
+- [x] Shadcn/UI kurulumu ve `cn` utility ayarı
+- [x] Temel Shadcn bileşenlerinin eklenmesi
+- [x] Dashboard template eklenmesi
+- [x] Supabase proje oluşturma ve bağlantı ayarları
+- [x] Supabase client konfigürasyonları
+- [x] Klasör yapısının düzenlenmesi
+- [x] Git reposunun başlatılması
 
-## 🔵 Faz 4: Public Frontend (Ziyaretçi Arayüzü)
-- [ ] **Layout:** Header (Responsive Navbar) ve Footer
-- [ ] **Ana Sayfa:** Hero bölümü, Öne çıkanlar, Kısaca Bedia Karaca
-- [ ] **Blog:**
-    - [ ] `/blog` listeleme sayfası (Filtreleme, Arama)
-    - [ ] `/blog/[slug]` detay sayfası (Markdown render, SEO)
-- [ ] **Kurumsal Sayfalar:**
-    - [ ] `/hakkimda` sayfası
-    - [ ] `/yayinlar` sayfası
-- [ ] **İletişim:**
-    - [ ] `/iletisim` sayfası ve formu
-    - [ ] Resend e-posta entegrasyonu
+## 🟢 Faz 2: Veritabanı ve Backend ✅ (100%)
+- [x] Veritabanı şeması (profiles, posts, categories, site_settings, publications, contact_submissions)
+- [x] Supabase Auth yapılandırması (Middleware ile `/ops` koruması)
+- [x] RLS (Row Level Security) politikaları
+- [x] TypeScript tipleri (`database.types.ts`)
+- [x] SQL dosyaları hazır ve çalıştırıldı
 
-## 🟣 Faz 5: Optimizasyon ve Yayına Alma
-- [ ] Metadata ve SEO optimizasyonu (OpenGraph, JSON-LD)
-- [ ] Sitemap ve Robots.txt oluşturma
-- [ ] Görsel optimizasyonları
-- [ ] Lighthouse performans testleri ve iyileştirmeler
-- [ ] Production deploy (Vercel/Netlify)
+## 🟢 Faz 3: Yönetim Paneli (/ops) ✅ (95%)
+- [x] Dashboard template ve layout
+- [x] Sidebar navigasyonu (collapsible)
+- [x] **Blog Yönetimi:**
+    - [x] Yazı listeleme (Tablo + Grid görünüm)
+    - [x] Filtreleme (arama, durum, kategori)
+    - [x] Yazı ekleme/düzenleme (TipTap editör)
+    - [x] Görsel yükleme (Supabase Storage)
+    - [x] Kategori yönetimi
+    - [x] Psikolog özellikleri (uzman notu, zorluk, etiketler, disclaimer)
+    - [x] SSS (FAQ) yönetimi
+    - [x] Yazar profilleri (avatar bucket'tan)
+    - [x] Alert dialog (silme/durum değiştirme onayı)
+    - [x] Responsive header
+- [x] **Randevu Yönetimi:**
+    - [x] Randevu listeleme ve filtreleme
+    - [x] Randevu detay ve düzenleme
+    - [x] Müsaitlik takvimi
+    - [x] İstatistikler ve grafikler
+    - [x] Tamamlanan randevular
+- [x] İletişim mesajları görüntüleme
+- [x] Hesap sayfası
+- [ ] **Site Ayarları:** (Beklemede)
+    - [ ] Global ayarlar formu
+    - [ ] Hakkımda/İletişim bilgileri
+- [ ] **Yayınlar Yönetimi:** (Beklemede)
+    - [x] Listeleme sayfası
+    - [ ] Kitap/Makale ekleme
+
+## 🟢 Faz 4: Public Frontend ✅ (95%)
+- [x] **Layout:** Navbar ve Footer
+- [x] **Ana Sayfa:** Hero, öne çıkanlar, hizmetler
+- [x] **Blog:**
+    - [x] `/blog` listeleme (filtreleme, arama, grid)
+    - [x] `/blog/[slug]` detay sayfası
+    - [x] Uzman notu, disclaimer, kriz hattı
+    - [x] SSS (FAQ) bölümü + Schema.org
+    - [x] Sidebar (içindekiler, uzman kartı, iletişim formu)
+    - [x] Etkileşim (yardımcı oldu mu, paylaş)
+    - [x] Blog sidebar iletişim formu (kaynak bilgisi ile)
+- [x] **Randevu:** `/randevu` sayfası ve form
+- [x] **Hakkımda:** `/about-us` sayfası
+- [x] **İletişim:** `/contact` sayfası ve formu (Supabase entegrasyonu)
+- [ ] **Yayınlar:** `/yayinlar` sayfası (Beklemede)
+
+## 🟡 Faz 5: Optimizasyon ve Yayına Alma (Devam Ediyor)
+- [ ] Metadata ve SEO optimizasyonu
+- [ ] Sitemap ve Robots.txt
+- [ ] Görsel optimizasyonları (Next/Image)
+- [ ] Lighthouse performans testleri
+- [ ] Production deploy
+
+---
+
+## 📌 Sıradaki Görevler (Öncelik Sırasına Göre)
+
+### 1. 🔴 Kritik
+- [x] Next/Image kullanımı (img etiketlerini değiştir) ✅
+
+### 2. 🟠 Yüksek Öncelik
+- [x] `/yayinlar` sayfası (Supabase entegrasyonu) ✅
+- [x] Resend e-posta entegrasyonu ✅
+- [x] Newsletter abonelik sistemi ✅
+- [x] Admin bülten gönderme sayfası ✅
+- [ ] SEO optimizasyonu (OpenGraph, JSON-LD)
+
+### 3. 🟡 Orta Öncelik
+- [ ] Yayın ekleme/düzenleme
+- [ ] Sitemap ve Robots.txt
+
+### 4. 🟢 Düşük Öncelik
+- [ ] TipTap inline not kutuları (uyarı, bilgi, kavram)
+- [ ] Podcast entegrasyonu
+- [ ] Highlight + share özelliği
+
+### ✅ Tamamlanan (Bu Oturum)
+- [x] Pending appointments alert tüm dashboard sayfalarında
+- [x] İletişim sayfası Supabase entegrasyonu
+- [x] Blog sidebar iletişim formu (kaynak bilgisi ile)
+- [x] Mesajlar sayfası kaynak gösterimi
+- [x] Site ayarları skeleton loading
+- [x] Next/Image kullanımı (tüm img etiketleri değiştirildi)
+- [x] Yayınlar sayfası Supabase entegrasyonu
+- [x] Resend e-posta entegrasyonu
+- [x] Newsletter abonelik sistemi (API + form)
+- [x] Admin bülten yönetim sayfası
+- [x] Resend Webhook entegrasyonu (email events tracking)
+- [x] Email analytics dashboard
+
+---
+
+## 📊 Genel İlerleme
+
+| Faz                    | Durum        | İlerleme |
+| ---------------------- | ------------ | -------- |
+| Faz 1: Altyapı         | ✅ Tamamlandı | 100%     |
+| Faz 2: Veritabanı      | ✅ Tamamlandı | 100%     |
+| Faz 3: Admin Panel     | ✅ Tamamlandı | 95%      |
+| Faz 4: Public Frontend | ✅ Tamamlandı | 95%      |
+| Faz 5: Optimizasyon    | 🔴 Başlanmadı | 10%      |
+
+**Toplam İlerleme: ~90%**

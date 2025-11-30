@@ -1,4 +1,9 @@
-import { IconFeather, IconFocus2, IconHeartbeat, IconMessageCircle2 } from "@tabler/icons-react";
+import {
+  IconFeather,
+  IconFocus2,
+  IconHeartbeat,
+  IconMessageCircle2,
+} from "@tabler/icons-react";
 
 const items = [
   {
@@ -29,37 +34,47 @@ const items = [
 
 export function ValueGrid() {
   return (
-    <section className="border-b border-border/60 bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-300">
-              Yaklaşım
-            </p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-50 sm:text-4xl">
-              Bilim, şefkat ve ritim
-            </h2>
-            <p className="mt-3 max-w-2xl text-base text-muted-foreground">
-              Seanslar, içerikler ve yayınlar; sakin bir akışta, uygulaması kolay
-              mikro adımlarla ilerler.
-            </p>
-          </div>
+    <section className="relative bg-background py-20 lg:py-28">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        {/* Header */}
+        <div className="text-center">
+          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            Yaklaşım
+          </span>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Bilim, şefkat ve ritim
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground">
+            Seanslar, içerikler ve yayınlar; sakin bir akışta, uygulaması kolay
+            mikro adımlarla ilerler.
+          </p>
         </div>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((item) => (
+        {/* Grid */}
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((item, index) => (
             <div
               key={item.title}
-              className="group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-white to-slate-50/70 p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:from-slate-900/70 dark:via-slate-900 dark:to-slate-950/60"
+              className="group relative rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-200/20 via-transparent to-indigo-200/10 opacity-0 transition group-hover:opacity-100 dark:from-emerald-900/30 dark:to-indigo-900/30" />
-              <item.icon className="relative h-8 w-8 text-emerald-600 dark:text-emerald-300" />
-              <h3 className="relative mt-4 text-xl font-semibold text-slate-900 dark:text-white">
+              {/* Icon */}
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/15">
+                <item.icon className="h-6 w-6 text-primary" />
+              </div>
+
+              {/* Content */}
+              <h3 className="mt-5 text-lg font-semibold text-foreground">
                 {item.title}
               </h3>
-              <p className="relative mt-2 text-sm text-muted-foreground leading-relaxed">
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {item.description}
               </p>
+
+              {/* Subtle number indicator */}
+              <span className="absolute right-4 top-4 text-4xl font-bold text-muted/30">
+                {String(index + 1).padStart(2, "0")}
+              </span>
             </div>
           ))}
         </div>

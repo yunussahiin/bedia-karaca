@@ -1,330 +1,353 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Trash2, Mail, Clock } from "lucide-react";
+  MessagesHeader,
+  MessagesList,
+  MessageDetailModal,
+  ContactMessage,
+  MessageFilter,
+  MessageStatus,
+} from "./components";
+import { TablePagination } from "@/components/data-table/table-pagination";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  DateRangeFilter,
+  getDateRangeFilter,
+  type DateRange,
+} from "@/components/data-table/date-range-filter";
 
-interface ContactMessage {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  message: string;
-  is_read: boolean;
-  created_at: string;
-}
+const ITEMS_PER_PAGE = 10;
 
 export default function MessagesPage() {
   const supabase = createClient();
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(
     null
   );
-  const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filter, setFilter] = useState<MessageFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateRange, setDateRange] = useState<DateRange>("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    loadMessages();
+    console.log("[Init] Messages page mounted, loading messages...");
+    void loadMessages();
+
+    // Set up realtime subscription for contact_submissions changes
+    const channel = supabase
+      .channel("contact_submissions_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "contact_submissions",
+        },
+        (payload) => {
+          console.log(
+            "[Realtime] Change detected:",
+            payload.eventType,
+            payload.new
+          );
+          void loadMessages();
+        }
+      )
+      .subscribe((status) => {
+        console.log("[Realtime] Subscription status:", status);
+      });
+
+    return () => {
+      console.log("[Cleanup] Removing realtime channel");
+      supabase.removeChannel(channel);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadMessages = async () => {
     try {
       setLoading(true);
-      const { data, error: fetchError } = await supabase
+      console.log("[Messages] Loading messages...");
+      const { data, error } = await supabase
         .from("contact_submissions")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (fetchError) {
-        setError(fetchError.message);
+      if (error) {
+        console.error("[Messages] Error loading:", error);
+        toast.error("Mesajlar yüklenirken hata oluştu");
         return;
       }
 
-      setMessages(data || []);
+      console.log("[Messages] Loaded successfully:", data?.length, "messages");
+
+      // Map is_read to status for backward compatibility
+      const mappedData = (data || []).map((msg) => ({
+        ...msg,
+        status: msg.status || (msg.is_read ? "read" : "new"),
+        notes: msg.notes || null,
+        updated_at: msg.updated_at || null,
+      }));
+
+      console.log("[Messages] Mapped data:", mappedData);
+      setMessages(mappedData);
     } catch (err) {
-      setError("Mesajlar yüklenirken bir hata oluştu");
-      console.error(err);
+      console.error("[Messages] Exception:", err);
+      toast.error("Mesajlar yüklenirken bir hata oluştu");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMarkAsRead = async (id: string, isRead: boolean) => {
+  const handleStatusChange = async (id: string, status: MessageStatus) => {
     try {
-      const { error: updateError } = await supabase
-        .from("contact_submissions")
-        .update({ is_read: !isRead })
-        .eq("id", id);
+      console.log(
+        "[StatusChange] START - Updating message",
+        id,
+        "to status:",
+        status
+      );
+      console.log(
+        "[StatusChange] Current messages before update:",
+        messages.find((m) => m.id === id)
+      );
 
-      if (updateError) {
-        setError(updateError.message);
+      const updateData = {
+        status,
+        is_read: status !== "new",
+        updated_at: new Date().toISOString(),
+      };
+      console.log("[StatusChange] Update payload:", updateData);
+
+      const { data, error } = await supabase
+        .from("contact_submissions")
+        .update(updateData)
+        .eq("id", id)
+        .select();
+
+      console.log("[StatusChange] Response data:", data);
+
+      if (error) {
+        console.error("[StatusChange] Supabase Error:", error);
+        toast.error("Durum güncellenirken hata oluştu");
         return;
       }
 
-      setMessages(
-        messages.map((msg) =>
-          msg.id === id ? { ...msg, is_read: !isRead } : msg
-        )
+      console.log("[StatusChange] Success! Updated message", id);
+
+      setMessages((prev) => {
+        const updated = prev.map((msg) =>
+          msg.id === id
+            ? {
+                ...msg,
+                status,
+                is_read: status !== "new",
+                updated_at: new Date().toISOString(),
+              }
+            : msg
+        );
+        console.log(
+          "[StatusChange] State updated, new messages:",
+          updated.find((m) => m.id === id)
+        );
+        return updated;
+      });
+
+      if (selectedMessage?.id === id) {
+        const newSelectedMessage = {
+          ...selectedMessage,
+          status,
+          is_read: status !== "new",
+          updated_at: new Date().toISOString(),
+        };
+        console.log(
+          "[StatusChange] Modal message updated:",
+          newSelectedMessage
+        );
+        setSelectedMessage(newSelectedMessage);
+      }
+
+      toast.success("Durum güncellendi");
+    } catch (err) {
+      console.error("[StatusChange] Exception:", err);
+      toast.error("Durum güncellenirken bir hata oluştu");
+    }
+  };
+
+  const handleNotesChange = async (id: string, notes: string) => {
+    try {
+      const { error } = await supabase
+        .from("contact_submissions")
+        .update({ notes, updated_at: new Date().toISOString() })
+        .eq("id", id);
+
+      if (error) {
+        toast.error("Not kaydedilirken hata oluştu");
+        return;
+      }
+
+      setMessages((prev) =>
+        prev.map((msg) => (msg.id === id ? { ...msg, notes } : msg))
       );
 
       if (selectedMessage?.id === id) {
-        setSelectedMessage({ ...selectedMessage, is_read: !isRead });
+        setSelectedMessage((prev) => (prev ? { ...prev, notes } : null));
       }
+
+      toast.success("Not kaydedildi");
     } catch (err) {
-      setError("Durum güncellenirken bir hata oluştu");
+      toast.error("Not kaydedilirken bir hata oluştu");
       console.error(err);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Bu mesajı silmek istediğinize emin misiniz?")) return;
-
     try {
-      const { error: deleteError } = await supabase
+      console.log("[Delete] Deleting message", id);
+      const { error } = await supabase
         .from("contact_submissions")
         .delete()
         .eq("id", id);
 
-      if (deleteError) {
-        setError(deleteError.message);
+      if (error) {
+        console.error("[Delete] Error:", error);
+        toast.error("Mesaj silinirken hata oluştu");
         return;
       }
 
-      setMessages(messages.filter((msg) => msg.id !== id));
-      setIsOpen(false);
-      setSelectedMessage(null);
+      console.log("[Delete] Success! Deleted message", id);
+      setMessages((prev) => prev.filter((msg) => msg.id !== id));
+      toast.success("Mesaj silindi");
     } catch (err) {
-      setError("Mesaj silinirken bir hata oluştu");
-      console.error(err);
+      console.error("[Delete] Exception:", err);
+      toast.error("Mesaj silinirken bir hata oluştu");
     }
   };
 
   const handleOpenMessage = async (message: ContactMessage) => {
     setSelectedMessage(message);
-    setIsOpen(true);
+    setIsModalOpen(true);
 
-    if (!message.is_read) {
-      await handleMarkAsRead(message.id, message.is_read);
+    // Mark as read when opening
+    if (message.status === "new") {
+      await handleStatusChange(message.id, "read");
     }
   };
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("tr-TR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  // Auto-refresh when modal closes or when page becomes visible
+  const handleModalClose = (open: boolean) => {
+    setIsModalOpen(open);
+    if (!open) {
+      console.log("[Modal] Closed, refreshing messages...");
+      void loadMessages();
+    }
   };
 
-  const unreadCount = messages.filter((msg) => !msg.is_read).length;
+  // Filtered messages
+  const filteredMessages = useMemo(() => {
+    let result = messages;
+
+    // Filter by date range
+    const dateFilter = getDateRangeFilter(dateRange);
+    if (dateFilter) {
+      result = result.filter((msg) => new Date(msg.created_at) >= dateFilter);
+    }
+
+    // Filter by status
+    if (filter !== "all") {
+      result = result.filter((msg) => msg.status === filter);
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (msg) =>
+          msg.name.toLowerCase().includes(query) ||
+          msg.email.toLowerCase().includes(query) ||
+          msg.message.toLowerCase().includes(query) ||
+          (msg.phone && msg.phone.includes(query))
+      );
+    }
+
+    return result;
+  }, [messages, filter, searchQuery, dateRange]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredMessages.length / ITEMS_PER_PAGE);
+  const paginatedMessages = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredMessages.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredMessages, currentPage]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, searchQuery, dateRange]);
+
+  const newCount = messages.filter((msg) => msg.status === "new").length;
+  const contactedCount = messages.filter(
+    (msg) => msg.status === "contacted"
+  ).length;
+  const resolvedCount = messages.filter(
+    (msg) => msg.status === "resolved"
+  ).length;
+  const archivedCount = messages.filter(
+    (msg) => msg.status === "archived"
+  ).length;
 
   return (
     <div className="space-y-6 w-full">
+      <MessagesHeader
+        totalCount={messages.length}
+        newCount={newCount}
+        contactedCount={contactedCount}
+        resolvedCount={resolvedCount}
+        archivedCount={archivedCount}
+        filter={filter}
+        searchQuery={searchQuery}
+        onFilterChange={setFilter}
+        onSearchChange={setSearchQuery}
+        onRefresh={loadMessages}
+        isLoading={loading}
+      />
+
+      {/* Date Filter */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">İletişim Mesajları</h1>
-          <p className="text-gray-600">
-            Ziyaretçilerden gelen mesajları yönetin
-          </p>
-        </div>
-        {unreadCount > 0 && (
-          <Badge variant="destructive" className="text-lg px-3 py-1">
-            {unreadCount} okunmamış
-          </Badge>
-        )}
+        <DateRangeFilter value={dateRange} onChange={setDateRange} />
+        <p className="text-sm text-muted-foreground">
+          {filteredMessages.length} sonuç
+        </p>
       </div>
 
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 text-sm text-red-600">
-          {error}
-        </div>
+      <MessagesList
+        messages={paginatedMessages}
+        loading={loading}
+        onOpenMessage={handleOpenMessage}
+        onStatusChange={handleStatusChange}
+        onDelete={handleDelete}
+      />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Mesajlar</CardTitle>
-          <CardDescription>{messages.length} mesaj bulunuyor</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <p className="text-gray-500">Mesajlar yükleniyor...</p>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8">
-              <Mail className="h-12 w-12 text-gray-300 mb-4" />
-              <p className="text-gray-500">Henüz mesaj yok</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>İsim</TableHead>
-                    <TableHead>E-posta</TableHead>
-                    <TableHead>Telefon</TableHead>
-                    <TableHead>Tarih</TableHead>
-                    <TableHead>Durum</TableHead>
-                    <TableHead className="text-right">İşlemler</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {messages.map((message) => (
-                    <TableRow
-                      key={message.id}
-                      className={!message.is_read ? "bg-blue-50" : ""}
-                    >
-                      <TableCell className="font-medium">
-                        {message.name}
-                      </TableCell>
-                      <TableCell className="text-sm">{message.email}</TableCell>
-                      <TableCell className="text-sm">
-                        {message.phone || "-"}
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {formatDate(message.created_at)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={message.is_read ? "secondary" : "default"}
-                        >
-                          {message.is_read ? "Okundu" : "Okunmadı"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenMessage(message)}
-                        >
-                          <Mail className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(message.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Mesaj Detay Dialog */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Mesaj Detayı</DialogTitle>
-            <DialogDescription>
-              {selectedMessage && formatDate(selectedMessage.created_at)}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedMessage && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    İsim
-                  </label>
-                  <p className="text-lg font-semibold">
-                    {selectedMessage.name}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    E-posta
-                  </label>
-                  <p className="text-lg font-semibold">
-                    {selectedMessage.email}
-                  </p>
-                </div>
-              </div>
-
-              {selectedMessage.phone && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    Telefon
-                  </label>
-                  <p className="text-lg font-semibold">
-                    {selectedMessage.phone}
-                  </p>
-                </div>
-              )}
-
-              <div>
-                <label className="text-sm font-medium text-gray-600">
-                  Mesaj
-                </label>
-                <div className="mt-2 p-4 bg-gray-50 rounded-lg whitespace-pre-wrap text-sm">
-                  {selectedMessage.message}
-                </div>
-              </div>
-
-              <div className="flex gap-2 justify-end pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    handleMarkAsRead(
-                      selectedMessage.id,
-                      selectedMessage.is_read
-                    )
-                  }
-                >
-                  {selectedMessage.is_read
-                    ? "Okunmadı İşaretle"
-                    : "Okundu İşaretle"}
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDelete(selectedMessage.id)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Sil
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <MessageDetailModal
+        message={selectedMessage}
+        open={isModalOpen}
+        onOpenChange={handleModalClose}
+        onStatusChange={handleStatusChange}
+        onNotesChange={handleNotesChange}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

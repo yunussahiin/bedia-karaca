@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import Image from "next/image";
 
 interface BlogContentSection {
   heading: string;
@@ -131,12 +132,14 @@ export function BlogContent({ content, contentRef }: BlogContentProps) {
                     {section.images.map((imageUrl, idx) => (
                       <div
                         key={idx}
-                        className="relative overflow-hidden rounded-lg"
+                        className="relative overflow-hidden rounded-lg aspect-video"
                       >
-                        <img
+                        <Image
                           src={imageUrl}
                           alt={`${section.heading} - Görsel ${idx + 1}`}
-                          className="h-auto w-full rounded-lg object-cover"
+                          fill
+                          className="rounded-lg object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
                         />
                       </div>
                     ))}

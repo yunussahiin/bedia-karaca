@@ -1,21 +1,26 @@
 "use client";
 
 import * as React from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   IconArticle,
   IconBook,
+  IconCalendar,
   IconDashboard,
+  IconHeadphones,
   IconHelp,
   IconMail,
-  IconSearch,
+  IconPhone,
   IconSettings,
   IconUser,
+  IconBell,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
+import { CommandMenu } from "@/components/command-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -24,14 +29,17 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
+import { createClient } from "@/lib/supabase/client";
+
+interface UserData {
+  name: string;
+  email: string;
+  avatar: string;
+}
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -48,8 +56,54 @@ const data = {
           url: "/ops/dashboard/blog",
         },
         {
+          title: "Yorumlar",
+          url: "/ops/dashboard/blog/comments",
+        },
+        {
           title: "Kategoriler",
           url: "/ops/dashboard/blog/categories",
+        },
+      ],
+    },
+    {
+      title: "Podcast",
+      url: "/ops/dashboard/podcasts",
+      icon: IconHeadphones,
+      items: [
+        {
+          title: "Tüm Bölümler",
+          url: "/ops/dashboard/podcasts",
+        },
+        {
+          title: "Yeni Bölüm",
+          url: "/ops/dashboard/podcasts/new",
+        },
+      ],
+    },
+    {
+      title: "Randevular",
+      url: "/ops/dashboard/appointments",
+      icon: IconCalendar,
+      items: [
+        {
+          title: "Talepler",
+          url: "/ops/dashboard/appointments?tab=appointments",
+        },
+        {
+          title: "Takvim",
+          url: "/ops/dashboard/appointments?tab=calendar",
+        },
+        {
+          title: "Tamamlanan",
+          url: "/ops/dashboard/appointments?tab=completed",
+        },
+        {
+          title: "İstatistik",
+          url: "/ops/dashboard/appointments?tab=stats",
+        },
+        {
+          title: "Müsaitlik",
+          url: "/ops/dashboard/appointments?tab=availability",
         },
       ],
     },
@@ -61,6 +115,21 @@ const data = {
     {
       title: "Mesajlar",
       url: "/ops/dashboard/messages",
+      icon: IconMail,
+    },
+    {
+      title: "Çağrı Talepleri",
+      url: "/ops/dashboard/call-requests",
+      icon: IconPhone,
+    },
+    {
+      title: "Bildirimler",
+      url: "/ops/dashboard/notifications",
+      icon: IconBell,
+    },
+    {
+      title: "Bülten",
+      url: "/ops/dashboard/newsletter",
       icon: IconMail,
     },
     {
@@ -80,46 +149,94 @@ const data = {
       url: "#",
       icon: IconHelp,
     },
-    {
-      title: "Arama",
-      url: "#",
-      icon: IconSearch,
-    },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [user, setUser] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [commandOpen, setCommandOpen] = useState(false);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const supabase = createClient();
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+
+      if (authUser) {
+        // Get user metadata or profile
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name, avatar_url")
+          .eq("id", authUser.id)
+          .single();
+
+        setUser({
+          name:
+            profile?.full_name ||
+            authUser.user_metadata?.full_name ||
+            authUser.email?.split("@")[0] ||
+            "Kullanıcı",
+          email: authUser.email || "",
+          avatar:
+            profile?.avatar_url ||
+            authUser.user_metadata?.avatar_url ||
+            "/bedia-kalemzer-karaca-logo.png",
+        });
+      }
+      setLoading(false);
+    };
+
+    void loadUser();
+  }, []);
+
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="/ops/dashboard" className="w-full flex justify-center">
-                <Image
-                  src="/bedia-kalemzer-karaca-logo.png"
-                  alt="Bedia Karaca"
-                  width={150}
-                  height={48}
-                  unoptimized
-                  className="rounded-full"
-                  priority
-                />
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
-    </Sidebar>
+    <>
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                className="data-[slot=sidebar-menu-button]:!p-1.5"
+              >
+                <a href="/ops/dashboard" className="w-full flex justify-center">
+                  <Image
+                    src="/bedia-kalemzer-karaca-logo.png"
+                    alt="Bedia Karaca"
+                    width={150}
+                    height={48}
+                    unoptimized
+                    className="rounded-full w-auto h-auto"
+                    priority
+                  />
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain
+            items={data.navMain}
+            onSearchClick={() => setCommandOpen(true)}
+          />
+          <NavSecondary items={data.navSecondary} className="mt-auto" />
+        </SidebarContent>
+        <SidebarFooter>
+          {loading ? (
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuSkeleton showIcon />
+              </SidebarMenuItem>
+            </SidebarMenu>
+          ) : user ? (
+            <NavUser user={user} />
+          ) : null}
+        </SidebarFooter>
+      </Sidebar>
+
+      <CommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
+    </>
   );
 }

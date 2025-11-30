@@ -43,26 +43,33 @@ lib/
 
 ### Phase 1: Core Infrastructure
 - [x] Install `@tiptap/html` package
-- [ ] Create `lib/tiptap/extensions.ts` - shared extension config
-- [ ] Create `lib/tiptap/renderer.ts` - server-side HTML generator
+- [x] Create `lib/tiptap/extensions.ts` - shared extension config
+- [x] Create `lib/tiptap/renderer.ts` - server-side HTML generator
 
 ### Phase 2: Service Layer
-- [ ] Refactor `lib/services/blog.ts` - remove manual JSON→HTML conversion
-- [ ] Use official `generateHTML` from `@tiptap/html`
+- [x] Refactor `lib/services/blog.ts` - remove manual JSON→HTML conversion
+- [x] Use official `generateHTML` from `@tiptap/html`
 
 ### Phase 3: Components
-- [ ] Update `components/blog-editor.tsx` - use shared extensions
-- [ ] Update `components/article-renderer.tsx` - proper prose styling
-- [ ] Add comprehensive CSS for `.blog-prose` in `globals.css`
+- [x] Update `components/blog-editor.tsx` - use shared extensions
+- [x] Update `components/article-renderer.tsx` - proper prose styling
+- [x] CSS for `.blog-prose` already exists in `globals.css`
 
 ### Phase 4: Public Pages
-- [ ] Update `app/blog/[slug]/components/blog-client-wrapper.tsx`
-- [ ] Remove unused `BlogContent` component or repurpose for TOC
+- [x] Update `app/blog/[slug]/components/blog-client-wrapper.tsx`
+- [x] `BlogContent` component repurposed - TOC now uses content array
 
 ### Phase 5: Testing & Cleanup
 - [ ] Test all editor features (bold, italic, lists, tables, images, etc.)
 - [ ] Test public blog rendering
-- [ ] Remove dead code
+- [x] Remove dead code (500+ lines of manual converters removed)
+
+### Phase 6: Psikolog İçin Ek Özellikler
+- [x] YouTube video embed desteği eklendi
+- [x] GDPR uyumlu nocookie mode
+- [x] Responsive video player CSS
+- [ ] Callout/Info Box (gelecekte eklenebilir)
+- [ ] Audio Player (podcast için, gelecekte)
 
 ## Extension Configuration
 

@@ -34,6 +34,7 @@ import { FaSpotify } from "react-icons/fa";
 import { SiApplemusic } from "react-icons/si";
 import { PiRssFill } from "react-icons/pi";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const sourceConfigs: Record<
   PodcastSource,
@@ -181,6 +182,8 @@ export default function PersistentPodcastPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasTriggeredWelcomeRef = useRef(false);
   const isMobile = useIsMobile();
+  const pathname = usePathname();
+  const isDashboard = pathname?.startsWith("/ops/dashboard");
   const [audioMetrics, setAudioMetrics] = useState<{
     position: number;
     duration?: number;
@@ -692,7 +695,8 @@ export default function PersistentPodcastPlayer() {
     "Paylaşılmayan içeriklerin hepsi gizlilik anlaşmasına tabidir.",
   ];
 
-  if (isMobile) {
+  // Hide on mobile and dashboard
+  if (isMobile || isDashboard) {
     return null;
   }
 
@@ -706,16 +710,13 @@ export default function PersistentPodcastPlayer() {
       )}
       <div
         ref={containerRef}
-        className={cn(
-          "group fixed inset-x-0 bottom-4 z-50 w-full px-4 md:inset-auto md:bottom-6 md:left-6 md:right-auto md:w-auto md:px-0",
-          panelOpen ? "pointer-events-auto" : ""
-        )}
+        className="group pointer-events-none fixed inset-x-0 bottom-4 z-50 w-full px-4 md:inset-auto md:bottom-6 md:left-6 md:right-auto md:w-auto md:px-0"
       >
         <div className="flex flex-col-reverse items-start gap-3">
           <Button
             aria-expanded={panelOpen}
             className={cn(
-              "group/button relative flex h-12 w-full items-center overflow-hidden rounded-full bg-gradient-to-r text-white shadow-xl ring-1 ring-black/5 transition-all duration-300 hover:shadow-2xl focus-visible:ring-2 focus-visible:ring-white/40",
+              "group/button pointer-events-auto relative flex h-12 w-full items-center overflow-hidden rounded-full bg-gradient-to-r text-white shadow-xl ring-1 ring-black/5 transition-all duration-300 hover:shadow-2xl focus-visible:ring-2 focus-visible:ring-white/40",
               sourceConfigs[activeSource].buttonGradient,
               isButtonExpanded
                 ? "justify-start gap-3 pl-4 pr-6 md:w-auto md:min-w-[18rem]"

@@ -31,6 +31,7 @@ import {
   Subscript as SubscriptIcon,
   Highlighter,
   CheckSquare2,
+  Youtube,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ImageUploader } from "@/components/image-uploader";
@@ -92,6 +93,8 @@ export function BlogEditor({ content, onChange }: BlogEditorProps) {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [imageUploaderOpen, setImageUploaderOpen] = useState(false);
+  const [youtubeDialogOpen, setYoutubeDialogOpen] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -314,6 +317,11 @@ export function BlogEditor({ content, onChange }: BlogEditorProps) {
             tooltip="Yapılacak Listesi"
             icon={CheckSquare2}
           />
+          <ToolbarButton
+            onClick={() => setYoutubeDialogOpen(true)}
+            tooltip="YouTube Video Ekle"
+            icon={Youtube}
+          />
         </div>
 
         {/* Editor */}
@@ -376,6 +384,52 @@ export function BlogEditor({ content, onChange }: BlogEditorProps) {
                   }
                   setLinkDialogOpen(false);
                   setLinkUrl("");
+                }}
+              >
+                Ekle
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* YouTube Dialog */}
+        <Dialog open={youtubeDialogOpen} onOpenChange={setYoutubeDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>YouTube Video Ekle</DialogTitle>
+              <DialogDescription>
+                YouTube video URL&apos;sini girin
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label htmlFor="youtube-url">YouTube URL</Label>
+                <Input
+                  id="youtube-url"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setYoutubeDialogOpen(false);
+                  setYoutubeUrl("");
+                }}
+              >
+                İptal
+              </Button>
+              <Button
+                onClick={() => {
+                  if (youtubeUrl) {
+                    editor.commands.setYoutubeVideo({ src: youtubeUrl });
+                  }
+                  setYoutubeDialogOpen(false);
+                  setYoutubeUrl("");
                 }}
               >
                 Ekle

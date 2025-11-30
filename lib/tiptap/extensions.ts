@@ -20,6 +20,7 @@ import Subscript from '@tiptap/extension-subscript'
 import Highlight from '@tiptap/extension-highlight'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
+import Youtube from '@tiptap/extension-youtube'
 
 /**
  * Editor Extensions - Client-side için (Placeholder dahil değil)
@@ -31,6 +32,9 @@ export function getEditorExtensions() {
       heading: {
         levels: [1, 2, 3],
       },
+      // Link ve Underline'ı StarterKit'ten disable et, aşağıda özelleştirilmiş versiyonları var
+      link: false,
+      underline: false,
     }),
     Underline,
     Link.configure({
@@ -88,6 +92,15 @@ export function getEditorExtensions() {
         class: 'task-item',
       },
     }),
+    Youtube.configure({
+      inline: false,
+      width: 640,
+      height: 360,
+      nocookie: true, // GDPR uyumlu
+      HTMLAttributes: {
+        class: 'rounded-lg my-4 w-full aspect-video',
+      },
+    }),
   ]
 }
 
@@ -104,6 +117,9 @@ export function getRendererExtensions() {
           class: 'font-semibold text-foreground',
         },
       },
+      // Link ve Underline'ı StarterKit'ten disable et, aşağıda özelleştirilmiş versiyonları var
+      link: false,
+      underline: false,
     }),
     Underline,
     Link.configure({
@@ -167,6 +183,15 @@ export function getRendererExtensions() {
       nested: true,
       HTMLAttributes: {
         class: 'task-item flex items-start gap-2',
+      },
+    }),
+    Youtube.configure({
+      inline: false,
+      width: 640,
+      height: 360,
+      nocookie: true,
+      HTMLAttributes: {
+        class: 'rounded-lg my-4 w-full aspect-video',
       },
     }),
   ]

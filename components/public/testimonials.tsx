@@ -1,56 +1,96 @@
-import { IconQuote, IconSparkles } from "@tabler/icons-react";
+import { IconQuote, IconStarFilled } from "@tabler/icons-react";
 
 const testimonials = [
   {
     quote:
       "DEHB için düzenli terapiye ilk kez bu kadar istekle gidiyorum. Her seans sonrası gelen küçük özetler beni çok rahatlattı.",
-    author: "M.N. · Product Manager",
+    author: "M.N.",
+    role: "Product Manager",
+    rating: 5,
   },
   {
     quote:
       "Bedia Hanım’ın ebeveynlik rehberleri sayesinde evdeki çatışma anları kısa ve sakin geçmeye başladı. Sınır koymak artık daha nazik.",
-    author: "E&K · İki çocuk ebeveyni",
+    author: "E&K",
+    role: "İki çocuk ebeveyni",
+    rating: 5,
   },
   {
     quote:
       "Kendine şefkat egzersizleri performans kaygımı ciddi şekilde azalttı. Sunumlardan önce uyguladığım kısa protokol hayat kurtarıyor.",
-    author: "D.Y. · Klinik Psikolog",
+    author: "D.Y.",
+    role: "Klinik Psikolog",
+    rating: 5,
   },
 ];
 
 export function Testimonials() {
   return (
-    <section className="border-b border-border/60 bg-gradient-to-b from-background to-emerald-50/30 dark:from-slate-950 dark:to-slate-900">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-300">
+    <section className="relative bg-background py-20 lg:py-28">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        {/* Header */}
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-3">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               Geri Bildirimler
-            </p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white sm:text-4xl">
+            </span>
+            <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
               Danışanların deneyimi
             </h2>
+            <p className="max-w-xl text-base text-muted-foreground">
+              Rahatlatan seans özetleri, mikro egzersizler ve takip desteğiyle
+              güvenli bir ritim.
+            </p>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-white/90 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm backdrop-blur dark:border-emerald-900/70 dark:bg-slate-900/70 dark:text-emerald-200">
-            <IconSparkles className="h-4 w-4" />
-            %96 memnuniyet
+
+          {/* Rating badge */}
+          <div className="flex items-center gap-3 rounded-2xl border border-border/50 bg-card px-4 py-3">
+            <div className="flex gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <IconStarFilled key={star} className="h-4 w-4 text-amber-400" />
+              ))}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold text-foreground">%96</span>
+              <span className="text-muted-foreground"> memnuniyet</span>
+            </div>
           </div>
         </div>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
+        {/* Testimonials grid */}
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {testimonials.map((item) => (
-            <figure
+            <div
               key={item.author}
-              className="group flex h-full flex-col rounded-3xl border border-border/60 bg-white/80 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-2xl dark:bg-slate-900/70"
+              className="group relative rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
             >
-              <IconQuote className="h-7 w-7 text-emerald-600 dark:text-emerald-300" />
-              <blockquote className="mt-4 text-base text-slate-900 dark:text-white leading-relaxed">
-                “{item.quote}”
+              {/* Quote icon */}
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                <IconQuote className="h-5 w-5 text-primary" />
+              </div>
+
+              {/* Quote */}
+              <blockquote className="mt-4 text-base leading-relaxed text-foreground">
+                &ldquo;{item.quote}&rdquo;
               </blockquote>
-              <figcaption className="mt-4 text-sm font-semibold text-muted-foreground">
-                {item.author}
-              </figcaption>
-            </figure>
+
+              {/* Author */}
+              <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-4">
+                <div>
+                  <p className="font-semibold text-foreground">{item.author}</p>
+                  <p className="text-sm text-muted-foreground">{item.role}</p>
+                </div>
+                <div className="flex gap-0.5">
+                  {Array.from({ length: item.rating }).map((_, i) => (
+                    <IconStarFilled
+                      key={i}
+                      className="h-3.5 w-3.5 text-amber-400"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>

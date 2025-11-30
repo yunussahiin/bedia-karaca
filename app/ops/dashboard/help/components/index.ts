@@ -1,0 +1,12 @@
+export { HelpQuickStart } from "./help-quick-start";
+export { HelpDashboard } from "./help-dashboard";
+export { HelpAppointments } from "./help-appointments";
+export { HelpBlog } from "./help-blog";
+export { HelpMessages } from "./help-messages";
+export { HelpCallRequests } from "./help-call-requests";
+export { HelpNewsletter } from "./help-newsletter";
+export { HelpNotifications } from "./help-notifications";
+export { HelpPodcasts } from "./help-podcasts";
+export { HelpPublications } from "./help-publications";
+export { HelpSettings } from "./help-settings";
+export { HelpAccount } from "./help-account";

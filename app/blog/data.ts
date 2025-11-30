@@ -1,3 +1,22 @@
+export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
+
+export type FAQ = {
+  question: string;
+  answer: string;
+};
+
+export type BibliographyItem = {
+  id: string;
+  authors: string;
+  year: string;
+  title: string;
+  source?: string;
+  url?: string;
+  doi?: string;
+  accessedAt?: string;
+  isPrimary?: boolean; // Ana kaynak mı (üstte gösterilecek)
+};
+
 export type BlogPost = {
   id?: string;
   title: string;
@@ -9,6 +28,7 @@ export type BlogPost = {
   coverGradient: string;
   coverImageUrl?: string;
   content: {
+    id?: string;
     heading: string;
     body: string;
     bullets?: string[];
@@ -18,12 +38,34 @@ export type BlogPost = {
   status?: 'draft' | 'published';
   authorId?: string;
   authorName?: string;
+  authorBio?: string;
+  authorAvatar?: string;
   contentNotes?: string[];
+  
+  // Psikolog Blog Özellikleri
+  expertNote?: string;
+  difficultyLevel?: DifficultyLevel;
+  emotionTags?: string[];
+  relatedConditions?: string[];
+  showDisclaimer?: boolean;
+  showCrisisInfo?: boolean;
+  disclaimerText?: string;
+  crisisInfoText?: string;
+  relatedPodcastId?: string;
+  faq?: FAQ[];
+  bibliography?: BibliographyItem[];
+  lastUpdatedAt?: string;
+  
+  // Metrikler
   metrics?: {
     views?: number;
     shares?: number;
     saves?: number;
+    likes?: number;
+    helpful?: number;
   };
+  
+  // Eski alanlar (geriye uyumluluk)
   tags?: string[];
   quickFacts?: Array<{ title: string; description: string }>;
   insights?: Array<{ label: string; value: string; description: string }>;

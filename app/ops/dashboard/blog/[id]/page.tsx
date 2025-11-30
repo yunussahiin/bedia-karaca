@@ -1,177 +1,207 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { BlogEditor } from "@/components/blog-editor";
 import { ContentAnalyzer } from "@/components/content-analyzer";
 import { SEOBlogGuide } from "@/components/seo-blog-guide";
-import { FileUpload } from "@/components/file-upload";
 import { ContentNotesEditor } from "@/components/content-notes-editor";
+import {
+  BlogFormHeader,
+  BlogBasicInfo,
+  BlogPsychologySettings,
+  BlogMessages,
+  ManageBibliographyModal,
+  type BibliographyItem,
+} from "../components";
 
 interface Category {
   id: string;
   name: string;
 }
 
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  cover_image_url: string | null;
-  category_id: string;
-  status: "draft" | "published";
-  featured: boolean;
-  author_name: string | null;
-  content_notes: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export default function EditBlogPage() {
-  const router = useRouter();
   const params = useParams();
   const postId = params.id as string;
   const supabase = createClient();
 
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  // Form state
+  // Temel alanlar
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
+  const [initialSlug, setInitialSlug] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
   const [status, setStatus] = useState<"draft" | "published">("draft");
   const [featured, setFeatured] = useState(false);
   const [contentNotes, setContentNotes] = useState<string[]>([]);
+  const [lastUpdated, setLastUpdated] = useState("");
+
+  // Psikolog özellikleri
+  const [expertNote, setExpertNote] = useState("");
+  const [authorBio, setAuthorBio] = useState("Klinik Psikolog");
+  const [authorAvatar, setAuthorAvatar] = useState(
+    "https://nztcblkytmaxartdvhoj.supabase.co/storage/v1/object/public/avatars/author-1764449943538.jpg"
+  );
+  const [difficultyLevel, setDifficultyLevel] = useState<
+    "beginner" | "intermediate" | "advanced"
+  >("beginner");
+  const [emotionTags, setEmotionTags] = useState<string[]>([]);
+  const [relatedConditions, setRelatedConditions] = useState<string[]>([]);
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [showCrisisInfo, setShowCrisisInfo] = useState(false);
+  const [disclaimerText, setDisclaimerText] = useState("");
+  const [crisisInfoText, setCrisisInfoText] = useState("");
+  const [faq, setFAQ] = useState<
+    Array<{ id: string; question: string; answer: string }>
+  >([]);
+  const [bibliography, setBibliography] = useState<BibliographyItem[]>([]);
+
+  // UI state
+  const [pageLoading, setPageLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Kategorileri yükle
   useEffect(() => {
-    const fetchCategories = async () => {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("id, name")
-        .order("name");
+    loadCategories();
+    loadPost();
+  }, [postId]);
 
-      if (error) {
-        console.error("Kategori yükleme hatası:", error);
+  const loadCategories = async () => {
+    const { data } = await supabase
+      .from("categories")
+      .select("id, name")
+      .order("name");
+    setCategories(data || []);
+  };
+
+  const loadPost = async () => {
+    try {
+      setPageLoading(true);
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*")
+        .eq("id", postId)
+        .single();
+
+      if (error || !data) {
+        setError("Yazı yüklenemedi");
         return;
       }
 
-      setCategories(data || []);
-    };
+      setTitle(data.title || "");
+      setSlug(data.slug || "");
+      setInitialSlug(data.slug || "");
+      setExcerpt(data.excerpt || "");
+      setContent(data.content || "");
+      setCoverImageUrl(data.cover_image_url || "");
+      setCategoryId(data.category_id || "");
+      setStatus(data.status || "draft");
+      setFeatured(Boolean(data.featured));
+      setLastUpdated(data.updated_at || "");
 
-    fetchCategories();
-  }, [supabase]);
-
-  // Yazıyı yükle
-  useEffect(() => {
-    const fetchPost = async () => {
+      // Content notes
       try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("posts")
-          .select("*")
-          .eq("id", postId)
-          .single();
-
-        if (error) {
-          setError("Yazı yüklenemedi");
-          console.error(error);
-          return;
-        }
-
-        if (data) {
-          setPost(data);
-          setTitle(data.title || "");
-          setSlug(data.slug || "");
-          setExcerpt(data.excerpt || "");
-          setContent(data.content || "");
-          setCoverImageUrl(data.cover_image_url || "");
-          setCategoryId(data.category_id || "");
-          setStatus(data.status || "draft");
-          setFeatured(Boolean(data.featured));
-          try {
-            setContentNotes(
-              data.content_notes ? JSON.parse(data.content_notes) : []
-            );
-          } catch {
-            setContentNotes([]);
-          }
-        }
-      } catch (err) {
-        setError("Bir hata oluştu");
-        console.error(err);
-      } finally {
-        setLoading(false);
+        setContentNotes(
+          data.content_notes ? JSON.parse(data.content_notes) : []
+        );
+      } catch {
+        setContentNotes([]);
       }
-    };
 
-    if (postId) {
-      fetchPost();
+      // Psikolog özellikleri
+      setExpertNote(data.expert_note || "");
+      setAuthorBio(data.author_bio || "Klinik Psikolog");
+      setAuthorAvatar(
+        data.author_avatar ||
+          "https://nztcblkytmaxartdvhoj.supabase.co/storage/v1/object/public/avatars/author-1764449943538.jpg"
+      );
+      setDifficultyLevel(data.difficulty_level || "beginner");
+      setEmotionTags(data.emotion_tags || []);
+      setRelatedConditions(data.related_conditions || []);
+      setShowDisclaimer(data.show_disclaimer ?? true);
+      setShowCrisisInfo(data.show_crisis_info ?? false);
+      setDisclaimerText(data.disclaimer_text || "");
+      setCrisisInfoText(data.crisis_info_text || "");
+      // FAQ'ı yükle ve id ekle
+      if (data.faq && Array.isArray(data.faq)) {
+        setFAQ(
+          data.faq.map(
+            (f: { question: string; answer: string }, i: number) => ({
+              id: `faq-${i}`,
+              question: f.question,
+              answer: f.answer,
+            })
+          )
+        );
+      }
+      // Bibliography'yi yükle
+      if (data.bibliography && Array.isArray(data.bibliography)) {
+        setBibliography(
+          data.bibliography.map(
+            (
+              b: {
+                id?: string;
+                authors: string;
+                year: string;
+                title: string;
+                source?: string;
+                url?: string;
+                doi?: string;
+                accessed_at?: string;
+                is_primary?: boolean;
+              },
+              i: number
+            ) => ({
+              id: b.id || `bib-${i}`,
+              authors: b.authors,
+              year: b.year,
+              title: b.title,
+              source: b.source || "",
+              url: b.url || "",
+              doi: b.doi || "",
+              accessedAt: b.accessed_at || "",
+              isPrimary: b.is_primary || false,
+            })
+          )
+        );
+      }
+    } catch {
+      setError("Bir hata oluştu");
+    } finally {
+      setPageLoading(false);
     }
-  }, [postId, supabase]);
+  };
 
-  // Slug otomatik oluştur
-  useEffect(() => {
-    if (title) {
-      const newSlug = title
-        .toLowerCase()
-        .replace(/ç/g, "c")
-        .replace(/ğ/g, "g")
-        .replace(/ı/g, "i")
-        .replace(/ö/g, "o")
-        .replace(/ş/g, "s")
-        .replace(/ü/g, "u")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .replace(/ç/g, "c")
+      .replace(/ğ/g, "g")
+      .replace(/ı/g, "i")
+      .replace(/ö/g, "o")
+      .replace(/ş/g, "s")
+      .replace(/ü/g, "u")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  };
 
-      setSlug(newSlug);
-    }
-  }, [title]);
+  const handleRegenerateSlug = () => {
+    if (title) setSlug(generateSlug(title));
+  };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file size (max 5MB)
+  const handleImageUpload = async (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
       setError("Dosya boyutu 5MB'dan küçük olmalıdır");
-      return;
-    }
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      setError("Lütfen bir görsel dosyası seçin");
       return;
     }
 
@@ -183,32 +213,23 @@ export default function EditBlogPage() {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `blog-covers/${fileName}`;
 
-      // Try to upload to storage
       const { error: uploadError } = await supabase.storage
         .from("blog-images")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+        .upload(filePath, file);
 
       if (uploadError) {
-        console.error("Upload error:", uploadError);
         setError(`Görsel yüklenirken hata: ${uploadError.message}`);
         return;
       }
 
-      // Get public URL
       const { data: urlData } = supabase.storage
         .from("blog-images")
         .getPublicUrl(filePath);
 
       if (urlData?.publicUrl) {
         setCoverImageUrl(urlData.publicUrl);
-      } else {
-        setError("Görsel URL'si alınamadı");
       }
-    } catch (err) {
-      console.error("Upload exception:", err);
+    } catch {
       setError("Görsel yüklenirken bir hata oluştu");
     } finally {
       setUploadingImage(false);
@@ -224,7 +245,7 @@ export default function EditBlogPage() {
       !categoryId ||
       !coverImageUrl
     ) {
-      setError("Lütfen tüm alanları doldurun");
+      setError("Lütfen tüm zorunlu alanları doldurun");
       return;
     }
 
@@ -243,9 +264,38 @@ export default function EditBlogPage() {
           category_id: categoryId,
           status,
           featured: featured && status === "published",
+          author_bio: authorBio,
+          author_avatar: authorAvatar || null,
           content_notes:
             contentNotes.length > 0 ? JSON.stringify(contentNotes) : null,
           updated_at: new Date().toISOString(),
+          // Psikolog özellikleri
+          expert_note: expertNote || null,
+          difficulty_level: difficultyLevel,
+          emotion_tags: emotionTags,
+          related_conditions: relatedConditions,
+          show_disclaimer: showDisclaimer,
+          show_crisis_info: showCrisisInfo,
+          disclaimer_text: disclaimerText || null,
+          crisis_info_text: crisisInfoText || null,
+          faq:
+            faq.length > 0
+              ? faq.map((f) => ({ question: f.question, answer: f.answer }))
+              : null,
+          bibliography:
+            bibliography.length > 0
+              ? bibliography.map((b) => ({
+                  id: b.id,
+                  authors: b.authors,
+                  year: b.year,
+                  title: b.title,
+                  source: b.source || null,
+                  url: b.url || null,
+                  doi: b.doi || null,
+                  accessed_at: b.accessedAt || null,
+                  is_primary: b.isPrimary || false,
+                }))
+              : null,
         })
         .eq("id", postId);
 
@@ -254,30 +304,28 @@ export default function EditBlogPage() {
         return;
       }
 
-      // Başarılı mesajı göster ve listeye dön
-      setTimeout(() => {
-        router.push("/ops/dashboard/blog");
-      }, 1000);
-    } catch (err) {
+      setSaveSuccess(true);
+      setLastUpdated(new Date().toISOString());
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch {
       setError("Bir hata oluştu");
-      console.error(err);
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
+  if (pageLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-  if (!post) {
+  if (!title && !pageLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <p className="text-lg">Yazı bulunamadı</p>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-lg text-muted-foreground">Yazı bulunamadı</p>
         <Link href="/ops/dashboard/blog">
           <Button>Blog Listesine Dön</Button>
         </Link>
@@ -286,186 +334,137 @@ export default function EditBlogPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/ops/dashboard/blog">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold">Yazıyı Düzenle</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Yazının detaylarını güncelleyin
-          </p>
+    <div className="space-y-6 w-full">
+      <BlogFormHeader
+        title="Yazıyı Düzenle"
+        subtitle="Yazının detaylarını güncelleyin"
+        isEdit
+        status={status}
+        slug={slug}
+        lastUpdated={lastUpdated}
+        onSave={handleSave}
+        saving={saving}
+      />
+
+      <BlogMessages success={saveSuccess} error={error} />
+
+      {/* Ana Grid - Sol: Temel Bilgiler, Sağ: Psikolog Ayarları */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Sol Kolon - 2/3 */}
+        <div className="xl:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Yazı Bilgileri</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BlogBasicInfo
+                title={title}
+                setTitle={setTitle}
+                slug={slug}
+                setSlug={setSlug}
+                excerpt={excerpt}
+                setExcerpt={setExcerpt}
+                categoryId={categoryId}
+                setCategoryId={setCategoryId}
+                categories={categories}
+                status={status}
+                setStatus={setStatus}
+                featured={featured}
+                setFeatured={setFeatured}
+                coverImageUrl={coverImageUrl}
+                onImageUpload={handleImageUpload}
+                onImageRemove={() => setCoverImageUrl("")}
+                uploadingImage={uploadingImage}
+                isEdit
+                initialSlug={initialSlug}
+                onRegenerateSlug={handleRegenerateSlug}
+              />
+            </CardContent>
+          </Card>
+
+          {/* İçerik Editörü */}
+          <Card>
+            <CardHeader>
+              <CardTitle>İçerik</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BlogEditor content={content} onChange={setContent} />
+            </CardContent>
+          </Card>
+
+          {/* Kaynakça */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Kaynakça</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Blog yazısı için akademik kaynakları ekleyin. Kaynaklar APA
+                formatında görüntülenecektir.
+              </p>
+              <ManageBibliographyModal
+                bibliography={bibliography}
+                onChange={setBibliography}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Content Analyzer */}
+          <ContentAnalyzer title={title} content={content} excerpt={excerpt} />
         </div>
-      </div>
 
-      {error && (
-        <div className="rounded-md bg-red-50 dark:bg-red-950/30 p-4 text-sm text-red-600 dark:text-red-400">
-          {error}
-        </div>
-      )}
-
-      {/* Settings Bar */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <Label htmlFor="category-top">Kategori *</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger id="category-top" className="mt-1">
-                  <SelectValue placeholder="Kategori seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="status-top">Durum</Label>
-              <Select
-                value={status}
-                onValueChange={(value) =>
-                  setStatus(value as "draft" | "published")
-                }
-              >
-                <SelectTrigger id="status-top" className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Taslak</SelectItem>
-                  <SelectItem value="published">Yayınlandı</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="md:col-span-2 flex items-end gap-2">
-              <Button onClick={handleSave} disabled={saving} className="flex-1">
-                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {saving ? "Kaydediliyor..." : "Kaydet"}
-              </Button>
-              <Link href="/ops/dashboard/blog">
-                <Button variant="outline">İptal</Button>
-              </Link>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Main Content */}
-      <div className="space-y-6">
-        {/* Title & Slug */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Yazı Detayları</CardTitle>
-            <CardDescription>Yazının başlığı ve özeti</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="title">Başlık *</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Yazı başlığı"
-                className="mt-1"
+        {/* Sağ Kolon - 1/3 */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Psikolog Ayarları</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BlogPsychologySettings
+                expertNote={expertNote}
+                setExpertNote={setExpertNote}
+                authorBio={authorBio}
+                setAuthorBio={setAuthorBio}
+                authorAvatar={authorAvatar}
+                setAuthorAvatar={setAuthorAvatar}
+                difficultyLevel={difficultyLevel}
+                setDifficultyLevel={setDifficultyLevel}
+                emotionTags={emotionTags}
+                setEmotionTags={setEmotionTags}
+                relatedConditions={relatedConditions}
+                setRelatedConditions={setRelatedConditions}
+                showDisclaimer={showDisclaimer}
+                setShowDisclaimer={setShowDisclaimer}
+                showCrisisInfo={showCrisisInfo}
+                setShowCrisisInfo={setShowCrisisInfo}
+                disclaimerText={disclaimerText}
+                setDisclaimerText={setDisclaimerText}
+                crisisInfoText={crisisInfoText}
+                setCrisisInfoText={setCrisisInfoText}
+                faq={faq}
+                setFAQ={setFAQ}
               />
-            </div>
+            </CardContent>
+          </Card>
 
-            <div>
-              <Label htmlFor="slug">Slug *</Label>
-              <Input
-                id="slug"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="yazı-slugu"
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="excerpt">Özet *</Label>
-              <Input
-                id="excerpt"
-                value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
-                placeholder="Yazının kısa özeti"
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label>Kapak Fotoğrafı *</Label>
-              <div className="mt-2">
-                <FileUpload
-                  onFileSelect={async (file) => {
-                    const event = {
-                      target: { files: [file] },
-                    } as unknown as React.ChangeEvent<HTMLInputElement>;
-                    await handleImageUpload(event);
-                  }}
-                  isLoading={uploadingImage}
-                  previewUrl={coverImageUrl}
-                  onRemove={() => setCoverImageUrl("")}
+          {/* Öne Çıkan Notlar */}
+          {featured && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Öne Çıkan Yazı Notları</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ContentNotesEditor
+                  notes={contentNotes}
+                  onChange={setContentNotes}
                 />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
 
-        {/* Featured & Content Notes */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Öne Çıkarma Ayarları</CardTitle>
-            <CardDescription>
-              Yazıyı öne çıkarın ve notlar ekleyin
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="featured"
-                checked={featured}
-                onCheckedChange={(checked) => setFeatured(checked as boolean)}
-                disabled={status !== "published"}
-              />
-              <Label htmlFor="featured" className="cursor-pointer">
-                Öne Çıkar (sadece yayınlanmış yazılar için)
-              </Label>
-            </div>
-
-            {featured && (
-              <ContentNotesEditor
-                notes={contentNotes}
-                onChange={setContentNotes}
-              />
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Editor */}
-        <Card>
-          <CardHeader>
-            <CardTitle>İçerik</CardTitle>
-            <CardDescription>Yazının ana içeriğini yazın</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BlogEditor content={content} onChange={setContent} />
-          </CardContent>
-        </Card>
-
-        {/* Content Analyzer */}
-        <ContentAnalyzer title={title} content={content} excerpt={excerpt} />
-
-        {/* SEO Guide */}
-        <SEOBlogGuide />
+          {/* SEO Guide */}
+          <SEOBlogGuide />
+        </div>
       </div>
     </div>
   );
