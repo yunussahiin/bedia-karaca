@@ -254,20 +254,10 @@ export default function PersistentPodcastPlayer() {
       }
     };
 
-    setSelectedProfile(detectProfile());
-
-    const preparedEpisode: PodcastEpisode = {
-      ...welcomeEpisode,
-      embedUrl: welcomeEpisode.embedUrl || welcomeEpisode.audioUrl || "",
-      externalUrl: welcomeEpisode.externalUrl || welcomeEpisode.embedUrl || "",
-      source: welcomeEpisode.source ?? "spotify",
-    };
-
-    setActiveSource(preparedEpisode.source ?? "spotify");
-    openPlayer(preparedEpisode);
-    setPanelOpen(true);
-    setShowWelcomeOverlay(true);
-  }, [currentEpisode, openPlayer]);
+    // Otomatik açılma özelliği kaldırıldı
+    // setSelectedProfile(detectProfile());
+    // openPlayer ve setPanelOpen çağrıları kaldırıldı
+  }, [currentEpisode]);
 
   useEffect(() => {
     if (currentEpisode?.source) {
@@ -786,7 +776,7 @@ export default function PersistentPodcastPlayer() {
           >
             <div
               className={cn(
-                "flex w-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-white shadow-2xl transition-all duration-300 md:w-[720px] lg:w-[820px] xl:w-[900px] md:bg-card/95 md:backdrop-blur",
+                "flex w-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-white dark:bg-card shadow-2xl transition-all duration-300 md:w-[720px] lg:w-[820px] xl:w-[900px] md:bg-card/95 md:backdrop-blur",
                 "md:bg-gradient-to-br",
                 sourceConfigs[activeSource].accent
               )}
