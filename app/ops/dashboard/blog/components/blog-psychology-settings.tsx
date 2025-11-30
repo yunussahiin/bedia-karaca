@@ -24,6 +24,7 @@ import {
   Phone,
   BookOpen,
   HelpCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -156,7 +157,7 @@ const DEFAULT_DIFFICULTY_LEVELS: DifficultyLevelItem[] = [
 interface TooltipLabelProps {
   label: string;
   tooltip: string;
-  icon?: React.ElementType;
+  icon?: LucideIcon;
 }
 
 function TooltipLabel({ label, tooltip, icon: Icon }: TooltipLabelProps) {
