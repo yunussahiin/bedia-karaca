@@ -1,4 +1,4 @@
-import { PodcastEpisode } from "@/contexts/PodcastPlayerContext";
+import { PodcastEpisode } from "@/lib/contexts/PodcastPlayerContext";
 
 export function parsePodcastRss(xml: string, limit = 20): PodcastEpisode[] {
   if (typeof window === "undefined") return [];
