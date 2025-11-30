@@ -31,7 +31,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 const settingsSchema = z.object({
   site_title: z.string().min(1, "Site başlığı gerekli"),
   site_description: z.string().min(1, "Site açıklaması gerekli"),
-  about_text: z.string().optional(),
   contact_email: z.string().email("Geçerli bir e-posta adresi girin"),
   contact_phone: z.string().min(1, "Telefon numarası gerekli"),
   contact_address: z.string().min(1, "Adres gerekli"),
@@ -53,7 +52,31 @@ const settingsSchema = z.object({
       (val) => val === "" || z.string().url().safeParse(val).success,
       "Geçerli bir URL girin"
     ),
+  social_linkedin: z
+    .string()
+    .refine(
+      (val) => val === "" || z.string().url().safeParse(val).success,
+      "Geçerli bir URL girin"
+    ),
+  social_youtube: z
+    .string()
+    .refine(
+      (val) => val === "" || z.string().url().safeParse(val).success,
+      "Geçerli bir URL girin"
+    ),
+  social_tiktok: z
+    .string()
+    .refine(
+      (val) => val === "" || z.string().url().safeParse(val).success,
+      "Geçerli bir URL girin"
+    ),
   social_spotify: z
+    .string()
+    .refine(
+      (val) => val === "" || z.string().url().safeParse(val).success,
+      "Geçerli bir URL girin"
+    ),
+  social_apple_podcasts: z
     .string()
     .refine(
       (val) => val === "" || z.string().url().safeParse(val).success,
@@ -72,14 +95,17 @@ export default function SettingsPage() {
     defaultValues: {
       site_title: "",
       site_description: "",
-      about_text: "",
       contact_email: "",
       contact_phone: "",
       contact_address: "",
       social_instagram: "",
       social_facebook: "",
       social_twitter: "",
+      social_linkedin: "",
+      social_youtube: "",
+      social_tiktok: "",
       social_spotify: "",
+      social_apple_podcasts: "",
     },
   });
 
@@ -107,14 +133,17 @@ export default function SettingsPage() {
         form.reset({
           site_title: settings.site_title || "",
           site_description: settings.site_description || "",
-          about_text: settings.about_text || "",
           contact_email: settings.contact_email || "",
           contact_phone: settings.contact_phone || "",
           contact_address: settings.contact_address || "",
           social_instagram: settings.social_instagram || "",
           social_facebook: settings.social_facebook || "",
           social_twitter: settings.social_twitter || "",
+          social_linkedin: settings.social_linkedin || "",
+          social_youtube: settings.social_youtube || "",
+          social_tiktok: settings.social_tiktok || "",
           social_spotify: settings.social_spotify || "",
+          social_apple_podcasts: settings.social_apple_podcasts || "",
         });
       } catch (error) {
         console.error("Ayarlar yüklenirken hata:", error);
@@ -281,27 +310,6 @@ export default function SettingsPage() {
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="about_text"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hakkımda Metni</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Kendiniz hakkında bilgi yazınız..."
-                            className="min-h-32"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Hakkımda sayfasında gösterilecek metin
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -454,6 +462,69 @@ export default function SettingsPage() {
 
                   <FormField
                     control={form.control}
+                    name="social_linkedin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>LinkedIn</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="https://linkedin.com/in/bediakalemzerkaraca"
+                            type="url"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          LinkedIn profil linki (opsiyonel)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="social_youtube"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>YouTube</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="https://youtube.com/@bediakalemzerkaraca"
+                            type="url"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          YouTube kanal linki (opsiyonel)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="social_tiktok"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>TikTok</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="https://tiktok.com/@bediakalemzerkaraca"
+                            type="url"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          TikTok profil linki (opsiyonel)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
                     name="social_spotify"
                     render={({ field }) => (
                       <FormItem>
@@ -467,6 +538,27 @@ export default function SettingsPage() {
                         </FormControl>
                         <FormDescription>
                           Spotify podcast linki (opsiyonel)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="social_apple_podcasts"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Apple Podcasts</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="https://podcasts.apple.com/tr/podcast/..."
+                            type="url"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Apple Podcasts linki (opsiyonel)
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

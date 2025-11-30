@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { ThemeSwitcherToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { LogoHorizontal } from "@/components/logo";
-import { getSocialLinks } from "@/lib/services/site-settings";
+import { createClient } from "@/lib/supabase/client";
 import {
   Sheet,
   SheetContent,
@@ -57,33 +57,90 @@ interface SocialLink {
   icon: string;
 }
 
-// Platform -> icon mapping
-const platformIconMap: Record<string, string> = {
-  instagram: "instagram",
-  facebook: "facebook",
-  twitter: "twitter",
-  linkedin: "linkedin",
-  youtube: "youtube",
-  tiktok: "tiktok",
-  spotify: "spotify",
-  apple_podcasts: "apple",
-};
+// Sosyal medya linkleri - site_settings'ten alınmalı, şimdilik statik
+const socialLinks: SocialLink[] = [
+  {
+    platform: "instagram",
+    url: "https://instagram.com/bediakaraca",
+    icon: "instagram",
+  },
+  {
+    platform: "facebook",
+    url: "https://facebook.com/bediakaraca",
+    icon: "facebook",
+  },
+  {
+    platform: "twitter",
+    url: "https://twitter.com/bediakaraca",
+    icon: "twitter",
+  },
+  {
+    platform: "linkedin",
+    url: "https://linkedin.com/in/bediakalemzerkaraca",
+    icon: "linkedin",
+  },
+  {
+    platform: "youtube",
+    url: "https://youtube.com/@bediakalemzerkaraca",
+    icon: "youtube",
+  },
+  {
+    platform: "tiktok",
+    url: "https://tiktok.com/@bediakalemzerkaraca",
+    icon: "tiktok",
+  },
+  {
+    platform: "spotify",
+    url: "https://open.spotify.com/show/1J3oTT9lj55lbwneHnyw3E",
+    icon: "spotify",
+  },
+];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [dynamicSocialLinks, setDynamicSocialLinks] =
+    useState<SocialLink[]>(socialLinks);
   const pathname = usePathname();
 
-  // Site settings'ten sosyal medya linklerini çek
+  // Settings'ten sosyal medya linklerini yükle
   useEffect(() => {
-    const loadSocialLinks = async () => {
+    async function loadSocialLinks() {
       try {
-        const links = await getSocialLinks();
-        setSocialLinks(links);
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("site_settings")
+          .select("key, value")
+          .in("key", [
+            "social_instagram",
+            "social_facebook",
+            "social_twitter",
+            "social_linkedin",
+            "social_youtube",
+            "social_tiktok",
+            "social_spotify",
+          ]);
+
+        if (data && data.length > 0) {
+          const settings: Record<string, string> = {};
+          data.forEach((item) => {
+            settings[item.key] =
+              typeof item.value === "string"
+                ? item.value
+                : JSON.stringify(item.value);
+          });
+
+          const filtered = socialLinks.filter((link) => {
+            const key = `social_${link.platform}`;
+            return settings[key];
+          });
+
+          setDynamicSocialLinks(filtered);
+        }
       } catch (error) {
         console.error("Sosyal medya linkleri yüklenirken hata:", error);
       }
-    };
+    }
+
     loadSocialLinks();
   }, []);
 
@@ -188,7 +245,7 @@ export function Navbar() {
 
               {/* Social Links */}
               <div className="flex flex-wrap items-center justify-center gap-3 pt-6 px-4">
-                {socialLinks.map((social) => {
+                {dynamicSocialLinks.map((social) => {
                   const Icon = socialIcons[social.icon];
                   if (!Icon) return null;
                   return (

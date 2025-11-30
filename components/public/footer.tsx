@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { ThemeSwitcherToggle } from "@/components/theme-toggle";
 import { NewsletterSection } from "./newsletter-section";
 import { LogoHorizontal } from "@/components/logo";
-import { getSocialLinks } from "@/lib/services/site-settings";
+import { createClient } from "@/lib/supabase/client";
 import {
   IconBrandInstagram,
   IconBrandLinkedin,
@@ -20,32 +20,84 @@ interface SiteFooterProps {
   showNewsletter?: boolean;
 }
 
-interface SocialLink {
-  platform: string;
-  url: string;
-  icon: string;
-}
-
-// Platform -> icon mapping
-const platformIconMap: Record<string, typeof IconBrandInstagram> = {
-  instagram: IconBrandInstagram,
-  facebook: IconBrandFacebook,
-  twitter: IconBrandX,
-  linkedin: IconBrandLinkedin,
-  youtube: IconBrandYoutube,
-  tiktok: IconBrandTiktok,
-  spotify: IconBrandSpotify,
-};
+// Sosyal medya linkleri - site_settings'ten alınmalı, şimdilik statik
+const socialLinks = [
+  {
+    platform: "Instagram",
+    url: "https://instagram.com/bediakaraca",
+    icon: IconBrandInstagram,
+  },
+  {
+    platform: "Facebook",
+    url: "https://facebook.com/bediakaraca",
+    icon: IconBrandFacebook,
+  },
+  { platform: "X", url: "https://twitter.com/bediakaraca", icon: IconBrandX },
+  {
+    platform: "LinkedIn",
+    url: "https://linkedin.com/in/bediakalemzerkaraca",
+    icon: IconBrandLinkedin,
+  },
+  {
+    platform: "YouTube",
+    url: "https://youtube.com/@bediakalemzerkaraca",
+    icon: IconBrandYoutube,
+  },
+  {
+    platform: "TikTok",
+    url: "https://tiktok.com/@bediakalemzerkaraca",
+    icon: IconBrandTiktok,
+  },
+  {
+    platform: "Spotify",
+    url: "https://open.spotify.com/show/1J3oTT9lj55lbwneHnyw3E",
+    icon: IconBrandSpotify,
+  },
+];
 
 export function SiteFooter({ showNewsletter = true }: SiteFooterProps) {
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [dynamicSocialLinks, setDynamicSocialLinks] = useState(socialLinks);
 
+  // Settings'ten sosyal medya linklerini yükle
   useEffect(() => {
-    const fetchSocialLinks = async () => {
-      const links = await getSocialLinks();
-      setSocialLinks(links);
-    };
-    fetchSocialLinks();
+    async function loadSocialLinks() {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("site_settings")
+          .select("key, value")
+          .in("key", [
+            "social_instagram",
+            "social_facebook",
+            "social_twitter",
+            "social_linkedin",
+            "social_youtube",
+            "social_tiktok",
+            "social_spotify",
+          ]);
+
+        if (data && data.length > 0) {
+          const settings: Record<string, string> = {};
+          data.forEach((item) => {
+            settings[item.key] =
+              typeof item.value === "string"
+                ? item.value
+                : JSON.stringify(item.value);
+          });
+
+          const filtered = socialLinks.filter((link) => {
+            const key = `social_${link.platform.toLowerCase()}`;
+            return settings[key];
+          });
+
+          setDynamicSocialLinks(filtered);
+        }
+      } catch (error) {
+        console.error("Sosyal medya linkleri yüklenirken hata:", error);
+      }
+    }
+
+    loadSocialLinks();
   }, []);
 
   return (
@@ -67,9 +119,8 @@ export function SiteFooter({ showNewsletter = true }: SiteFooterProps) {
 
               {/* Social Links */}
               <div className="flex flex-wrap gap-2 pt-2">
-                {socialLinks.map((social) => {
-                  const Icon = platformIconMap[social.icon];
-                  if (!Icon) return null;
+                {dynamicSocialLinks.map((social) => {
+                  const Icon = social.icon;
                   return (
                     <a
                       key={social.platform}
@@ -185,7 +236,7 @@ export function SiteFooter({ showNewsletter = true }: SiteFooterProps) {
 
               {/* Social Links */}
               <div className="flex flex-wrap gap-2 pt-2">
-                {socialLinks.map((social) => {
+                {dynamicSocialLinks.map((social) => {
                   const Icon = social.icon;
                   return (
                     <a
