@@ -43,7 +43,7 @@ export function Logo({
           fontSize: `${fontSize}px`,
         }}
       >
-        Bedia Karaca
+        Bedia Kalemzer Karaca
       </text>
 
       {/* Decorative swirl under name */}
@@ -126,16 +126,15 @@ export function LogoMark({
   );
 }
 
-// Horizontal logo with icon - navbar için ideal
+// Horizontal logo - navbar için (sadece text, ikon yok)
 export function LogoHorizontal({ className, size = "md" }: LogoProps) {
   const sizes = {
-    sm: { width: 160, height: 40, iconSize: 32, fontSize: 20, subtitleSize: 7 },
-    md: { width: 190, height: 48, iconSize: 38, fontSize: 24, subtitleSize: 8 },
-    lg: { width: 230, height: 56, iconSize: 46, fontSize: 28, subtitleSize: 9 },
+    sm: { width: 300, height: 60, fontSize: 22, subtitleSize: 8 },
+    md: { width: 350, height: 70, fontSize: 26, subtitleSize: 9 },
+    lg: { width: 400, height: 80, fontSize: 30, subtitleSize: 10 },
   };
 
-  const { width, height, iconSize, fontSize, subtitleSize } = sizes[size];
-  const iconCenter = iconSize / 2 + 4;
+  const { width, height, fontSize, subtitleSize } = sizes[size];
 
   return (
     <svg
@@ -143,56 +142,30 @@ export function LogoHorizontal({ className, size = "md" }: LogoProps) {
       width={width}
       height={height}
       className={cn("transition-colors", className)}
-      aria-label="Bedia Karaca - Klinik Psikolog"
+      aria-label="Bedia Kalemzer Karaca - Klinik Psikolog"
+      preserveAspectRatio="xMidYMid meet"
     >
-      {/* Circle mark */}
-      <circle
-        cx={iconCenter}
-        cy={height / 2}
-        r={iconSize / 2 - 1}
-        className="fill-primary/10"
-      />
-      <circle
-        cx={iconCenter}
-        cy={height / 2}
-        r={iconSize / 2 - 1}
-        fill="none"
-        className="stroke-primary/30"
-        strokeWidth="1"
-      />
-
-      {/* BK initials in circle */}
-      <text
-        x={iconCenter}
-        y={height / 2 + 2}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        className="fill-primary"
-        style={{
-          fontFamily: FONT_FAMILY,
-          fontSize: `${iconSize * 0.45}px`,
-        }}
-      >
-        BK
-      </text>
-
       {/* Name */}
       <text
-        x={iconSize + 14}
-        y={height * 0.38}
+        x="50%"
+        y={height * 0.5}
+        textAnchor="middle"
+        dominantBaseline="middle"
         className="fill-foreground"
         style={{
           fontFamily: FONT_FAMILY,
           fontSize: `${fontSize}px`,
         }}
       >
-        Bedia Karaca
+        Bedia Kalemzer Karaca
       </text>
 
       {/* Subtitle */}
       <text
-        x={iconSize + 14}
-        y={height * 0.72}
+        x="50%"
+        y={height * 0.9}
+        textAnchor="middle"
+        dominantBaseline="middle"
         className="fill-muted-foreground"
         style={{
           fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
@@ -226,7 +199,7 @@ export function LogoText({
         fontSize: `${sizes[size].fontSize}px`,
       }}
     >
-      Bedia Karaca
+      Bedia Kalemzer Karaca
     </span>
   );
 }
