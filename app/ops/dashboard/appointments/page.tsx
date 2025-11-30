@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -23,6 +24,7 @@ import {
   CompletedAppointments,
   AppointmentsStats,
 } from "@/components/appointments/admin";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const VALID_TABS = [
   "appointments",
@@ -32,7 +34,7 @@ const VALID_TABS = [
   "availability",
 ];
 
-export default function AppointmentsPage() {
+function AppointmentsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get("tab");
@@ -138,5 +140,26 @@ export default function AppointmentsPage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function AppointmentsPageSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Skeleton className="h-9 w-64 mb-2" />
+        <Skeleton className="h-5 w-96" />
+      </div>
+      <Skeleton className="h-10 w-full max-w-xl" />
+      <Skeleton className="h-96 w-full" />
+    </div>
+  );
+}
+
+export default function AppointmentsPage() {
+  return (
+    <Suspense fallback={<AppointmentsPageSkeleton />}>
+      <AppointmentsContent />
+    </Suspense>
   );
 }

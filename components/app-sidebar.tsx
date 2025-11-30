@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import { Suspense, useEffect, useState } from "react";
 import {
   IconArticle,
   IconBook,
@@ -194,33 +193,37 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <>
       <Sidebar collapsible="icon" {...props}>
-        <SidebarHeader>
+        <SidebarHeader className="p-2">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                className="data-[slot=sidebar-menu-button]:!p-1.5"
+                className="data-[slot=sidebar-menu-button]:p-0! h-auto"
               >
-                <a href="/ops/dashboard" className="w-full flex justify-center">
-                  <Image
-                    src="/bedia-kalemzer-karaca-logo.png"
-                    alt="Bedia Karaca"
-                    width={150}
-                    height={48}
-                    unoptimized
-                    className="rounded-full w-auto h-auto"
-                    priority
-                  />
+                <a
+                  href="/ops/dashboard"
+                  className="w-full flex justify-center py-1"
+                >
+                  <span
+                    className="text-lg p-3 font-medium text-foreground"
+                    style={{
+                      fontFamily: "Amsterdam Handwriting, cursive",
+                    }}
+                  >
+                    Bedia Kalemzer Karaca
+                  </span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
         <SidebarContent>
-          <NavMain
-            items={data.navMain}
-            onSearchClick={() => setCommandOpen(true)}
-          />
+          <Suspense fallback={<SidebarMenuSkeleton />}>
+            <NavMain
+              items={data.navMain}
+              onSearchClick={() => setCommandOpen(true)}
+            />
+          </Suspense>
           <NavSecondary items={data.navSecondary} className="mt-auto" />
         </SidebarContent>
         <SidebarFooter>

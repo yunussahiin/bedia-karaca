@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 
-// Supabase admin client for webhook (bypasses RLS)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy-initialized Supabase admin client for webhook (bypasses RLS)
+let supabaseAdmin: SupabaseClient | null = null;
+
+function getSupabaseAdmin() {
+  if (!supabaseAdmin) {
+    supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return supabaseAdmin;
+}
 
 // Resend webhook signing secret
-const WEBHOOK_SECRET = process.env.RESEND_WEBHOOK_SECRET || "";
+const getWebhookSecret = () => process.env.RESEND_WEBHOOK_SECRET || "";
 
 interface ResendWebhookPayload {
   type: string;
@@ -60,7 +67,8 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get("resend-signature") || "";
 
     // Verify webhook signature
-    if (WEBHOOK_SECRET && !verifySignature(rawBody, signature, WEBHOOK_SECRET)) {
+    const webhookSecret = getWebhookSecret();
+    if (webhookSecret && !verifySignature(rawBody, signature, webhookSecret)) {
       console.error("Invalid webhook signature");
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
@@ -85,7 +93,8 @@ export async function POST(request: NextRequest) {
       raw_payload: payload,
     };
 
-    const { error: insertError } = await supabaseAdmin
+    const supabase = getSupabaseAdmin();
+    const { error: insertError } = await supabase
       .from("email_events")
       .insert(eventData);
 
@@ -99,7 +108,7 @@ export async function POST(request: NextRequest) {
       case "email.bounced":
         // Update subscriber status on bounce
         if (data.to?.[0]) {
-          await supabaseAdmin
+          await supabase
             .from("newsletter_subscribers")
             .update({ 
               is_subscribed: false,
@@ -112,7 +121,7 @@ export async function POST(request: NextRequest) {
       case "contact.unsubscribed":
         // Sync unsubscribe from Resend
         if (data.to?.[0]) {
-          await supabaseAdmin
+          await supabase
             .from("newsletter_subscribers")
             .update({ 
               is_subscribed: false,
@@ -125,7 +134,7 @@ export async function POST(request: NextRequest) {
       case "email.complained":
         // Mark as unsubscribed on spam complaint
         if (data.to?.[0]) {
-          await supabaseAdmin
+          await supabase
             .from("newsletter_subscribers")
             .update({ 
               is_subscribed: false,
